@@ -6,7 +6,7 @@ A travel globe for two. Every stopover is a boarding pass — where you came fro
 
 - 852 座城市有中文长卷（历史、文化、景点、美食，配维基共享图），另外 769 座可以点开现场整理一页（DeepSeek + Wikipedia/Wikivoyage）；地图上没有的地方可以从 Wikidata 加上。
 - 852 cities come with a long-form Chinese page (history, culture, sights, food, with Wikimedia Commons photos). 769 more can be written on demand (DeepSeek + Wikipedia/Wikivoyage), and any place on Wikidata can be added to the map.
-- 网页 + iOS 原生（SwiftUI，见 `ios/`）。Web app plus a native SwiftUI app (`ios/`).
+- 网页 + iOS 原生（SwiftUI），iOS 怎么跑见 [`ios/README.md`](ios/README.md)。Web app plus a native SwiftUI app — see [`ios/README.md`](ios/README.md) to build and run it.
 - 「同行的人」常常是你的 AI 伴侣：它通过 MCP 或命令行来看你的经停、留言、点星、递东西给你。The partner is often your AI companion: it reads, comments, stars and hands things to you over MCP or a small CLI.
 
 ## 跑起来 / Run it
@@ -147,7 +147,7 @@ location / {
 | `cli/stopover.py` | 伴侣用的命令行（只用标准库）/ the partner's CLI |
 | `AGENT.md` | 给 AI 伴侣看的手册 / manual for your AI companion |
 | `pipeline/citygen.py` | 现场整理一座城（Wikidata → Wikipedia/Wikivoyage → DeepSeek → Commons 配图） |
-| `ios/` | SwiftUI 原生版 |
+| `ios/` | SwiftUI 原生版（[怎么跑](ios/README.md)） |
 
 ## 许可 / License
 
