@@ -516,7 +516,7 @@ s      = hex(HMAC-SHA256(secret, "photo:{pid}:{w}"))[:32]
 
 **卡片钥匙 `k`**：每条 share / comment 建立时生成一把随机串（`secrets.token_urlsafe(12)`，16 字符），存在行里，常量时间比较。出现在 `/api/state`（`shares[].key`、`comments[].key`）、webhook 的 `cards[].url`、收件箱里。
 
-**反向代理放行**：只把 `/mcp`、`/api/partner/*`、`/card/*` 和**带 `s=` 的** `/api/photo/img/*` 放给公网，其余套你自己的鉴权——Caddy / nginx 写法见 README「7. 安全 / Security」。
+**反向代理放行**：只把 `/mcp`、`/api/partner/*`、`/card/*` 和**带 `s=` 的** `/api/photo/img/*` 放给公网，其余套你自己的鉴权——Caddy / nginx 写法见 README「安全」一节。
 
 ## 9. 重新实现清单 / Re-implementing checklist
 
