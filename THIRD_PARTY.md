@@ -4,7 +4,7 @@
 
 - **globe.gl / three-globe** by Vasco Asturiano — MIT. Loaded from jsDelivr at runtime.
 - **three.js** — MIT. Loaded from jsDelivr at runtime.
-- **jal-co/boarding-pass** — the boarding-pass layout and stub-tear interaction in `web/index.html` were modelled on this project. Its license:
+- **jal-co/boarding-pass** — the boarding-pass layout and stub-tear interaction in `web/index.html` and `ios/Stopover/Ticket.swift` were modelled on this project. Its license:
 
 ```
 MIT License
@@ -32,12 +32,16 @@ SOFTWARE.
 
 ## Imagery
 
-- `web/tex/earth-blue-marble.jpg`, `earth-night.jpg`, `earth-topology.png`, `earth-water.png`, `night-sky.png` — from the three-globe example assets. Earth imagery is derived from NASA Visible Earth (Blue Marble / Black Marble), which is public domain.
+- `web/tex/earth-blue-marble.jpg`, `earth-night.jpg`, `earth-topology.png`, `earth-water.png`, `night-sky.png` — from the three-globe example assets. Earth imagery is derived from NASA Visible Earth (Blue Marble / Black Marble), which is public domain. `ios/Stopover/Resources/stopover_marble.jpg` is NASA Visible Earth *Blue Marble* (public domain); `stopover_night.jpg` and `stopover_sky.jpg` are resized copies of the files above.
 - Optional zoom tiles: NASA GIBS, *BlueMarble_ShadedRelief_Bathymetry* — public domain, courtesy of NASA EOSDIS GIBS.
+
+## Fonts (iOS app)
+
+- **Instrument Serif** and **IBM Plex Mono** — SIL Open Font License 1.1, bundled in `ios/Stopover/Resources/` with their license texts (`OFL-*.txt`).
 
 ## Geography
 
-- `web/tex/countries.geojson`, `web/countries50.json` — Natural Earth (public domain).
+- `web/tex/countries.geojson`, `web/countries50.json`, `ios/Stopover/Resources/stopover_countries.json` — Natural Earth (public domain).
 - City outlines/bounding boxes — © OpenStreetMap contributors (ODbL), via Nominatim.
 - Coordinates and Wikipedia/Wikivoyage sitelinks — Wikidata (CC0).
 
