@@ -1,0 +1,10 @@
+{
+  "_doc": "Copy to config.json and edit. Changes apply without restarting.",
+  "me": "我",
+  "partner": "TA",
+  "home": {"label": "家", "lat": 31.23, "lng": 121.474, "tz": "Asia/Shanghai"},
+  "default_origin": {"domestic": "shanghai", "abroad": "shanghai"},
+  "domestic_countries": ["China", "Hong Kong S.A.R.", "Macao S.A.R", "Taiwan"],
+  "clocks": [{"label": "家里", "tz": "Asia/Shanghai"}, {"label": "伦敦", "tz": "Europe/London"}],
+  "gen": {"daily_max": 20}
+}

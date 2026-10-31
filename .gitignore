@@ -1,0 +1,6 @@
+var/
+server/config.json
+__pycache__/
+*.pyc
+.DS_Store
+web/data/.cities.lock
