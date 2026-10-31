@@ -22,9 +22,6 @@ A travel globe for two. Every stopover is a boarding pass — where you came fro
 - **地图上的痕迹**：来过的城是红点，从出发地拉出一道光带飞过去，有终点的再连回去；想去的是星星——金色是你的、蓝色是 TA 的、两个人都想去的是一对。时钟和昼夜按配置里的时区显示。**On the map**: red dots for places you've been, glowing arcs from where you set off (and on to where you went next), gold stars for you, blue stars for your partner, a pair when you both want to go; clocks with day/night for the time zones you choose.
 - **登机牌**：每来一次是一张票——出发地 → 城市 → 终点、日期、里程、一句备注。轻点抬起，拖着存根撕开（或再点一下让它自己撕），进入「这一次」。**Boarding passes**: one per visit — origin → city → next stop, dates, distance and a remark. Lift it, tear off the stub, and you're in the trip.
 
-<p align="center"><img src="docs/img/tear.gif" width="280" alt="抬起登机牌，拖着存根撕开，进入「这一次」"></p>
-<p align="center"><sub>就是这样：轻点抬起登机牌，拖着存根往右下撕开，「这一次」就在后面。<br>Like this: tap to lift the pass, drag the stub down and away, and the trip is right behind it.</sub></p>
-
 - **这一次**：随记（长短都行）、照片（自动去重、读拍摄时间、配文和标签）、改日期 / 出发地 / 终点。**The trip page**: notes of any length, photos (deduplicated, EXIF date, captions and tags), editable dates, origin and next stop.
 - **城市长卷**：852 座城有中文长卷——历史时间轴、文化、景点轮播、美食菜单，配维基共享资源的图，页面上带来源链接。另外 769 座点开有「整理」按钮，现场从 Wikipedia / Wikivoyage 写一页（要 DeepSeek key）；地图上没有的地方可以从 Wikidata 搜出来加上。**City pages**: 852 long-form Chinese pages (history timeline, culture, a sights carousel, a food menu, Commons photos, sources linked); 769 more can be written on demand; anything else can be added from Wikidata.
 - **搜索三栏**：按国家找 / 去过的（按国家分组）/ 想去的（都想去、我想去、TA 想去）。没主意时摇骰子：所有城市、没去过的、或者想去的星星里随机挑一座。**Search** by country, by where you've been, or by your stars — and a **dice** that picks a city at random (any, unvisited, or starred).
@@ -37,6 +34,9 @@ A travel globe for two. Every stopover is a boarding pass — where you came fro
 </p>
 
 ![桌面版：京都长卷和放大的地球](docs/img/desktop.jpg)
+
+<p align="center"><img src="docs/img/tear.gif" width="280" alt="抬起登机牌，拖着存根撕开，进入「这一次」"></p>
+<p align="center"><sub>就是这样：轻点抬起登机牌，拖着存根往右下撕开，「这一次」就在后面。<br>Like this: tap to lift the pass, drag the stub down and away, and the trip is right behind it.</sub></p>
 
 ### 两个人用 / Together（可整块关掉 / optional）
 
