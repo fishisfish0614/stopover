@@ -14,9 +14,6 @@ A travel globe for two. Every stopover is a boarding pass — where you came fro
 - 网页 + iOS 原生（SwiftUI），iOS 怎么跑见 [`ios/README.md`](ios/README.md)。Web app plus a native SwiftUI app — see [`ios/README.md`](ios/README.md) to build and run it.
 - 「同行的人」常常是你的 AI 伴侣：它通过 MCP 或命令行来看你的经停、留言、点星、递东西给你。The partner is often your AI companion: it reads, comments, stars and hands things to you over MCP or a small CLI.
 
-<p align="center"><img src="docs/img/tear.gif" width="300" alt="抬起登机牌，拖着存根撕开，进入「这一次」"></p>
-<p align="center"><sub>轻点抬起登机牌 → 拖着存根往右下撕开 → 进入「这一次」<br>Tap to lift the pass → drag the stub down and away → the trip opens</sub></p>
-
 ## 有什么 / Features
 
 ### 一个人记 / On your own
@@ -24,6 +21,10 @@ A travel globe for two. Every stopover is a boarding pass — where you came fro
 - **地球三种风格**：蓝石（NASA Blue Marble 卫星图，越放大越清楚）、夜航（NASA Black Marble 城市灯光，配晨昏线）、旧图（Natural Earth 矢量国界，纸面质感）。**Three globes**: Blue Marble satellite tiles, Black Marble city lights with the day/night line, and a paper map drawn from Natural Earth borders.
 - **地图上的痕迹**：来过的城是红点，从出发地拉出一道光带飞过去，有终点的再连回去；想去的是星星——金色是你的、蓝色是 TA 的、两个人都想去的是一对。时钟和昼夜按配置里的时区显示。**On the map**: red dots for places you've been, glowing arcs from where you set off (and on to where you went next), gold stars for you, blue stars for your partner, a pair when you both want to go; clocks with day/night for the time zones you choose.
 - **登机牌**：每来一次是一张票——出发地 → 城市 → 终点、日期、里程、一句备注。轻点抬起，拖着存根撕开（或再点一下让它自己撕），进入「这一次」。**Boarding passes**: one per visit — origin → city → next stop, dates, distance and a remark. Lift it, tear off the stub, and you're in the trip.
+
+<p align="center"><img src="docs/img/tear.gif" width="280" alt="抬起登机牌，拖着存根撕开，进入「这一次」"></p>
+<p align="center"><sub>就是这样：轻点抬起登机牌，拖着存根往右下撕开，「这一次」就在后面。<br>Like this: tap to lift the pass, drag the stub down and away, and the trip is right behind it.</sub></p>
+
 - **这一次**：随记（长短都行）、照片（自动去重、读拍摄时间、配文和标签）、改日期 / 出发地 / 终点。**The trip page**: notes of any length, photos (deduplicated, EXIF date, captions and tags), editable dates, origin and next stop.
 - **城市长卷**：852 座城有中文长卷——历史时间轴、文化、景点轮播、美食菜单，配维基共享资源的图，页面上带来源链接。另外 769 座点开有「整理」按钮，现场从 Wikipedia / Wikivoyage 写一页（要 DeepSeek key）；地图上没有的地方可以从 Wikidata 搜出来加上。**City pages**: 852 long-form Chinese pages (history timeline, culture, a sights carousel, a food menu, Commons photos, sources linked); 769 more can be written on demand; anything else can be added from Wikidata.
 - **搜索三栏**：按国家找 / 去过的（按国家分组）/ 想去的（都想去、我想去、TA 想去）。没主意时摇骰子：所有城市、没去过的、或者想去的星星里随机挑一座。**Search** by country, by where you've been, or by your stars — and a **dice** that picks a city at random (any, unvisited, or starred).
@@ -64,6 +65,7 @@ python3 server/stopover.py                          # → http://localhost:8000
 - 环境变量 / environment：`STOPOVER_VAR`（数据目录 / data dir）、`STOPOVER_CONFIG`（配置文件 / config file）、`STOPOVER_HOST` / `STOPOVER_PORT`。
 - **没有登录。** 只在自己电脑上跑，或者放在你自己的鉴权后面。**There is no login** — run it locally or behind your own auth.
 - 现场整理城市要 DeepSeek：`export DEEPSEEK_API_KEY=...`（可选 `STOPOVER_CONTACT=你的邮箱`，用于维基/Nominatim 的 User-Agent）。不设也能用，只是那个按钮会报错。On-demand city pages need `DEEPSEEK_API_KEY`; everything else works without it.
+- 完整接口（想用别的语言重写后端，或对接 iOS）见 [`docs/API.md`](docs/API.md)。The full HTTP API — for re-implementing the server or wiring up a client — is in [`docs/API.md`](docs/API.md).
 
 ## 配置 / Configuration
 
@@ -251,6 +253,7 @@ location / {
 | `AGENT.md` | 给 AI 伴侣看的手册 / manual for your AI companion |
 | `pipeline/citygen.py` | 现场整理一座城（Wikidata → Wikipedia/Wikivoyage → DeepSeek → Commons 配图） |
 | `ios/` | SwiftUI 原生版（[怎么跑](ios/README.md)） |
+| `docs/API.md` | 完整接口文档：重写后端、对接 iOS 时看 / full API reference |
 | `docs/` | README 配图（`docs/img/`，截图全是虚构的演示数据）/ README images, demo data only |
 
 ## 许可 / License

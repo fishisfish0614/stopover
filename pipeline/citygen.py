@@ -39,6 +39,11 @@ except Exception:
 
 
 # ---------- small helpers ----------
+def xid(en, lat):
+    """id of a city without a page: n_<english name>_<lat>, lat written the JavaScript way (no trailing .0) so it matches the web and iOS clients"""
+    lat = float(lat)
+    return f"n_{en}_{int(lat) if lat.is_integer() else lat}"
+
 def get(u, tries=3):
     for k in range(tries):
         try: return json.loads(urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=40).read())
@@ -181,7 +186,7 @@ def main(cid, tier):
     st(cid, "start", "准备中")
     idx = json.load(open(f"{DATA}/cities.json"))
     if any(x["id"] == cid for x in idx["cities"]): return st(cid, "done", "已经有资料了")
-    hit = next((x for x in idx["extra"] if f"n_{x[1]}_{x[2]}" == cid), None)
+    hit = next((x for x in idx["extra"] if xid(x[1], x[2]) == cid), None)
     if not hit: return st(cid, "error", "地图上没有这座城")
     zh, en, lat, lng, country = hit
 
@@ -274,7 +279,7 @@ def main(cid, tier):
     with open(f"{DATA}/.cities.lock", "w") as lk:
         fcntl.flock(lk, fcntl.LOCK_EX)
         cj = json.load(open(f"{DATA}/cities.json"))
-        cj["extra"] = [x for x in cj["extra"] if f"n_{x[1]}_{x[2]}" != cid]
+        cj["extra"] = [x for x in cj["extra"] if xid(x[1], x[2]) != cid]
         if not any(x["id"] == cid for x in cj["cities"]): cj["cities"].append(entry)
         tmp = f"{DATA}/cities.json.tmp"; json.dump(cj, open(tmp, "w"), ensure_ascii=False, separators=(",", ":")); os.replace(tmp, f"{DATA}/cities.json")
     st(cid, "done", "整理好了", entry=entry, sights=len(sights), foods=len(foods))

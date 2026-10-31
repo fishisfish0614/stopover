@@ -41,6 +41,11 @@ VERSION = "2.0"
 app = FastAPI(title="stopover")
 _lock = threading.Lock()
 
+def xid(en, lat):
+    """id of a city without a page: n_<english name>_<lat>, lat written the JavaScript way (no trailing .0) so it matches the web and iOS clients"""
+    lat = float(lat)
+    return f"n_{en}_{int(lat) if lat.is_integer() else lat}"
+
 def cfg():
     """Read every time, so edits to config.json apply without a restart."""
     for f in (CFG_FILE, os.path.join(ROOT, "server", "config.example.json")):
@@ -95,7 +100,7 @@ def _load_cities():
     if m != _cities["mtime"]:
         d = json.load(open(CITIES_JSON)); mp = {}
         for x in d["cities"]: mp[x["id"]] = {"name": x["n"], "en": x.get("e") or x["n"], "country": x["c"], "has": 1}
-        for name, en, lat, lng, country in d["extra"]: mp[f"n_{en}_{lat}"] = {"name": name, "en": en, "country": country, "has": 0}
+        for name, en, lat, lng, country in d["extra"]: mp[xid(en, lat)] = {"name": name, "en": en, "country": country, "has": 0}
         _cities.update(mtime=m, map=mp, cz=d.get("cz") or {})
     return _cities
 def cities():
@@ -1003,7 +1008,7 @@ def place_search(q: str):
         items = place_entities(ids) if ids else []
     except Exception as e: raise HTTPException(502, f"维基数据没连上：{e}")
     idx = json.load(open(CITIES_JSON)); mp = cities()
-    near = [(x["id"], x["la"], x["lo"]) for x in idx["cities"]] + [(f"n_{x[1]}_{x[2]}", x[2], x[3]) for x in idx["extra"]]
+    near = [(x["id"], x["la"], x["lo"]) for x in idx["cities"]] + [(xid(x[1], x[2]), x[2], x[3]) for x in idx["extra"]]
     for it in items:
         hit = next((i for i, la, lo in near if abs(la - it["lat"]) < .05 and abs(lo - it["lng"]) < .05), None)
         if hit: it["exists"], it["exists_name"] = hit, mp.get(hit, {}).get("name", "")
@@ -1016,11 +1021,11 @@ def place_add(body: dict = Body(default={})):
     if not re.fullmatch(r"Q\d+", qid): raise HTTPException(400, "缺维基数据编号")
     it = (place_entities([qid]) or [None])[0]
     if not it: raise HTTPException(404, "这个条目没有坐标，加不了")
-    en = it["en"].replace("/", " "); cid = f"n_{en}_{it['lat']}"; row = [it["name"], en, it["lat"], it["lng"], it["country"]]
+    en = it["en"].replace("/", " "); cid = xid(en, it['lat']); row = [it["name"], en, it["lat"], it["lng"], it["country"]]
     with open(os.path.join(os.path.dirname(CITIES_JSON), ".cities.lock"), "w") as lk:
         fcntl.flock(lk, fcntl.LOCK_EX)
         cj = json.load(open(CITIES_JSON))
-        if not any(f"n_{x[1]}_{x[2]}" == cid for x in cj["extra"]) and not any(x["id"] == cid for x in cj["cities"]):
+        if not any(xid(x[1], x[2]) == cid for x in cj["extra"]) and not any(x["id"] == cid for x in cj["cities"]):
             cj["extra"].append(row); tmp = CITIES_JSON + ".tmp"
             json.dump(cj, open(tmp, "w"), ensure_ascii=False, separators=(",", ":")); os.replace(tmp, CITIES_JSON)
     return {"ok": True, "id": cid, "city": row}
