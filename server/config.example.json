@@ -1,10 +1,29 @@
 {
-  "_doc": "Copy to config.json and edit. Changes apply without restarting.",
+  "_doc": "Copy to config.json and edit. Changes apply without restarting. Keys starting with _ are comments.",
   "me": "我",
   "partner": "TA",
   "home": {"label": "家", "lat": 31.23, "lng": 121.474, "tz": "Asia/Shanghai"},
   "default_origin": {"domestic": "shanghai", "abroad": "shanghai"},
   "domestic_countries": ["China", "Hong Kong S.A.R.", "Macao S.A.R", "Taiwan"],
   "clocks": [{"label": "家里", "tz": "Asia/Shanghai"}, {"label": "伦敦", "tz": "Europe/London"}],
-  "gen": {"daily_max": 20}
+  "gen": {"daily_max": 20},
+
+  "_partner_key": "Secret for your partner (e.g. an AI companion). Requests with 'Authorization: Bearer <partner_key>' act as the partner; /mcp, /api/partner/* and cli/stopover.py need it. Empty = partner features are view-only in the web page and no AI can call in. Generate one: python3 -c \"import secrets;print(secrets.token_urlsafe(32))\"",
+  "partner_key": "",
+
+  "_features": "share=false hides every hand-over / conversation / inbox UI in the web page.",
+  "features": {"share": true},
+
+  "_public_url": "Where this site is reachable, e.g. https://example.com — used for absolute links in webhooks, pushes and cards. Empty = relative links.",
+  "public_url": "",
+
+  "_inject": "When I hand something to the partner: wait until merge_seconds have passed quietly, then POST {text, shares, images, cards, replies} as JSON to url (with extra headers). Empty url = nothing is sent; the partner pulls GET /api/partner/inbox instead. template variables: {me} {partner} {body} {n}. A failed POST is retried once, then left in the inbox.",
+  "inject": {"url": "", "headers": {}, "merge_seconds": 120, "max_images": 9, "template": "〔经停 Stopover · 来自{me}〕\n{body}"},
+
+  "_push": "Push to my devices when the partner comments, hands me something or stars a city. web: Web Push (VAPID keys are generated into var/vapid.json on first use). apns: native iOS app — key_path is the .p8 auth key file, env is the default gateway for tokens that do not say.",
+  "push": {
+    "title": "经停",
+    "web": {"vapid_subject": "mailto:you@example.com"},
+    "apns": {"key_path": "", "key_id": "", "team_id": "", "bundle_id": "", "env": "production"}
+  }
 }

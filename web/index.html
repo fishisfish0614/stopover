@@ -133,7 +133,7 @@ body.open-side .legend,body.open-sheet .legend{opacity:0;pointer-events:none}
 .toast[hidden]{display:block!important;opacity:0;pointer-events:none}
 
 /* ---------- 骰子 / 抽中的城名 ---------- */
-.layer[hidden],.dicepop[hidden],.ticker[hidden]{display:none!important}
+.layer[hidden],.dicepop[hidden],.ticker[hidden],#chatN[hidden]{display:none!important}
 .styles#styles{margin-left:0}
 @media (max-width:600px){ .top{flex-wrap:wrap;row-gap:8px} .brand{width:100%} }
 .dice{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:5;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--bg) 75%,transparent);color:var(--fg);cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;place-items:center;transition:transform .3s}
@@ -429,6 +429,46 @@ body.open-side .credit,body.open-sheet .credit{display:none}
 .now{font:11px var(--f-mono);color:var(--muted);letter-spacing:.04em}
 @media (prefers-reduced-motion:reduce){.dice{transition:none}#lb.sheet-in,#lb.sheet-in .lbt,#lb.sheet-out{animation:none}.trk,.sc,.fx{transition:none;animation:none}}
 @media (prefers-reduced-motion:reduce){#globe,.card,.toast,.mk .dot{transition:none}.mk.star .sp,.mk.star .gl,.mk.on .hl{animation:none}}
+
+/* ---------- 二期：递送 / 对话 / 收件箱 / 通知（features.share=false 时全部不渲染） ---------- */
+.chatbtn{position:relative;font:500 12px var(--f-sans);color:var(--fg);background:color-mix(in srgb,var(--bg) 70%,transparent);border:1px solid var(--line);border-radius:999px;padding:6px 12px;min-height:34px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.chatbtn i{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:var(--pin);color:#fff;font:600 10px/16px var(--f-mono);font-style:normal;padding:0 4px;box-sizing:border-box}
+.bellbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--bg) 70%,transparent);color:var(--fg);cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.bellbtn svg{width:18px;height:18px}.bellbtn.on{color:var(--star)}
+.plane{width:16px;height:16px;flex:none}
+.gate{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;border-radius:12px;background:#3F5F86;color:#fff;cursor:pointer;text-align:left;font:inherit}
+.gate .tk-l{color:#cbd9ea}.gate b{display:block;margin-top:2px;font:600 16px var(--f-serif);letter-spacing:.06em}.gate small{display:block;margin-top:2px;font:12px var(--f-serif);color:#cbd9ea}
+.gate i{font-style:normal;font:600 20px var(--f-mono)}.gate[disabled]{opacity:.5;cursor:default}
+.gate.soft{background:rgba(63,95,134,.12);color:#1F2A38}.gate.soft .tk-l{color:#6F9FC8}
+.gatebox{display:grid;gap:10px;justify-items:start}.gatebox .gate{justify-self:stretch}
+.nt .ck2{position:absolute;top:13px;left:12px;width:20px;height:20px;border-radius:50%;border:2px solid #3F5F86;background:transparent;color:#fff;font:12px/16px var(--f-sans);font-style:normal;text-align:center}
+.nt.selable{cursor:pointer;padding-left:44px}.nt.on .ck2{background:#3F5F86}.nt.on{box-shadow:inset 0 0 0 1.5px #3F5F86}.nt.selable:not(.on) p{opacity:.65}
+.selbar{display:flex;gap:16px;align-items:center;font:14px var(--f-serif);color:#1F2A38;padding:8px 12px;border-radius:10px;background:rgba(63,95,134,.08)}.selbar span{flex:1}
+.pgrid.selecting .pth img{transition:transform .15s,opacity .15s}.pgrid.selecting .pth:not(.on) img{opacity:.6}.pgrid.selecting .pth.on img{transform:scale(.9)}
+.pth .ck2{position:absolute;top:6px;left:6px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:rgba(31,42,56,.35);color:#fff;font:13px/18px var(--f-sans);font-style:normal;text-align:center}.pth.on .ck2{background:#3F5F86}
+.pth .pcn{position:absolute;top:4px;right:4px;min-width:18px;height:18px;border-radius:9px;background:#3F5F86;color:#fff;font:10px/18px var(--f-mono);font-style:normal}
+.sendbox{display:grid;gap:10px}
+.cmf input,.aptags{font:15px var(--f-serif);color:#1F2A38;background:#F3F0EA;border:1px solid rgba(63,95,134,.28);border-radius:10px;padding:10px 12px;min-height:44px;box-sizing:border-box;width:100%;min-width:0}
+.aptags{margin-bottom:10px}
+.pend{padding:10px 12px;border-radius:10px;background:rgba(192,138,26,.1)}.pend p{display:flex;justify-content:space-between;gap:10px;margin:0 0 4px;font:13.5px var(--f-serif);color:#7d5a10}.pend .hint{color:#8a7a5a;font-size:12px}
+.pend.err p{color:#9a2a22}
+.tpc{margin-top:4px}.tpcl{font:13px var(--f-serif);color:#3e6a9e}
+.cm{margin:6px 0 4px;padding:10px 12px;background:rgba(63,95,134,.06);border-radius:10px}
+.cmi{padding:6px 0;border-bottom:1px dashed rgba(63,95,134,.15)}.cmi p{margin:0;font:14.5px/1.65 var(--f-serif);color:#1F2A38}.cmi b{margin-right:6px;color:#9a6a12}.cmi.pt b{color:#3e6a9e}
+.cmi .rp{font-size:12px;color:#6F9FC8;margin-right:6px}.cmm{display:flex;gap:12px;align-items:center;font:11px var(--f-mono);color:#8a93a0}.cmm .lk{font-size:12px;min-height:32px}
+.cmf{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.cmf input{flex:1}.cmr{width:100%;font:12px var(--f-serif);color:#3F5F86}
+.thread .cmi.me{padding-left:18px;border-left:2px solid rgba(185,137,58,.35)}.thread .cmi.pt{padding-left:18px;border-left:2px solid rgba(62,106,158,.35)}
+.thread .cmi{border-bottom:0;margin-bottom:6px}
+.tgrp{margin-bottom:14px}.tg-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;padding-bottom:8px;margin-bottom:8px;border-bottom:1px dashed rgba(63,95,134,.2)}
+.tg-k{font:11px var(--f-mono);letter-spacing:.12em;color:#6F9FC8}.tg-h b{font:600 15px var(--f-serif);color:#1F2A38}.tg-t{margin-left:auto;font:11px var(--f-mono);color:#8a93a0}
+.thf{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.thf .cmr{width:100%;font:12px var(--f-serif);color:#3F5F86}
+.thf input{flex:1;font:15px var(--f-serif);color:#1F2A38;background:#F3F0EA;border:1px solid rgba(63,95,134,.28);border-radius:10px;padding:10px 12px;min-height:44px;box-sizing:border-box;min-width:0}
+.inbox{display:grid;gap:10px}
+.ib{position:relative;display:grid;gap:4px;width:100%;text-align:left;padding:14px 16px;border:0;border-radius:12px;background:#F4F1EB;box-shadow:0 1px 0 rgba(31,42,56,.06),0 6px 16px rgba(31,42,56,.08);cursor:pointer;color:#1F2A38;font:inherit}
+.ib b{font:600 17px var(--f-serif)}.ibn{font:14px/1.6 var(--f-serif);color:#3e6a9e}
+.ibd{position:absolute;top:14px;right:14px;width:8px;height:8px;border-radius:50%;background:var(--pin)}
+.ib:not(.new){opacity:.8}
+.ntf{display:grid;gap:12px}.ntf .hint{line-height:1.7}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -447,6 +487,8 @@ body.open-side .credit,body.open-sheet .credit{display:none}
   <div class="brand"><h1>经停</h1><span class="stat" id="stat"></span></div>
   <button class="srchbtn" id="srchbtn" aria-label="搜索城市"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15 15 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
 
+  <button class="chatbtn" id="chatbtn" aria-label="递来的" hidden>递来的<i id="chatN" hidden></i></button>
+  <button class="bellbtn" id="bellbtn" aria-label="通知" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
   <nav class="styles" id="styles" aria-label="地球风格">
     <button data-s="marble">蓝石</button>
     <button data-s="night">夜航</button>
@@ -476,6 +518,7 @@ body.open-side .credit,body.open-sheet .credit{display:none}
 <div class="layer" id="trip" hidden></div>
 <div class="layer" id="lb" hidden></div>
 <div class="layer" id="sheet" hidden></div>
+<div class="layer" id="chat" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.2/dist/globe.gl.min.js"></script>
 <script>
@@ -485,9 +528,12 @@ async function getJSON(url){
   return r.json();
 }
 let TAGS = ["美食","风景","名胜","艺术品","个人照片"];   // 照片标签，以 /api/config 下发的为准
-// 网页的使用者就是 me；partner 的星星由后端接口写入，这里只显示
-let state = {ck:[], wish:[], photos:[], notes:[], cfg:{me:"我", partner:"TA", default_origin:{}, domestic_countries:[], clocks:[]}};
+// 网页的使用者就是 me；partner（同行的人，常常是 AI 伴侣）带钥匙走 /mcp 或 cli/stopover.py，这里显示它的星星、留言和递来的东西
+let state = {ck:[], wish:[], photos:[], notes:[], cmts:[], shares:[], cfg:{me:"我", partner:"TA", default_origin:{}, domestic_countries:[], clocks:[], features:{}}};
 const NAME = by => (by==="partner" ? state.cfg.partner : state.cfg.me) || by;
+const SH = () => !!state.cfg.features?.share;          // 递送 / 对话 / 收件箱 / 通知：配置 features.share=false 时一概不出现
+const PT = () => NAME("partner");
+const PLANE='<svg aria-hidden="true" viewBox="0 0 24 24" class="plane"><path d="M21 3 3 10.5l7 2.5 2.5 7L21 3Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m10 13 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 async function api(method, path, body){
   const r = await fetch("api/"+path, {method, headers:body?{"Content-Type":"application/json"}:{}, body:body?JSON.stringify(body):undefined});
   if(!r.ok){ let m=r.status; try{ m=(await r.json()).detail||m }catch(e){} throw new Error(m); }
@@ -497,7 +543,7 @@ async function loadState(){
   const d=await getJSON("api/state");
   state.ck=d.checkins||[];
   state.wish=(d.wishes||[]).map(w=>({id:w.city,by:w.by,note:w.note||""}));
-  state.photos=d.photos||[]; state.notes=d.notes||[];
+  state.photos=d.photos||[]; state.notes=d.notes||[]; state.cmts=d.comments||[]; state.shares=d.shares||[];
   if(d.config){ state.cfg={...state.cfg, ...d.config}; if(d.config.tags?.length) TAGS=d.config.tags; applyNames(); }
   if(world) updateSun();
 }
@@ -550,6 +596,11 @@ function renderSide(){
   $("#total").textContent=out.reduce((s,l)=>s+l.km,0).toLocaleString("zh-CN")+" KM";
   $("#log").innerHTML=v.map((x,i)=>`<li tabindex="0" data-id="${x.city}" data-k="${x.id}"><span class="n">${String(i+1).padStart(2,"0")}</span><span style="padding-left:${Math.min(x.d,4)*10}px">${x.d?"↳ ":""}${esc(byId[x.city].name)}</span><span class="d">${byId[x.origin]?"从 "+esc(byId[x.origin].name):"起点"}${byId[x.dest]?" · 回 "+esc(byId[x.dest].name):""}</span></li>`).join("");
   $("#log").querySelectorAll("li").forEach(li=>{li.onclick=()=>openCity(li.dataset.id);li.onkeydown=e=>{if(e.key==="Enter")openCity(li.dataset.id)}});
+  // 「递来的」：partner 递来的东西，没点开过的算未读（红点）
+  const fromPt=(state.shares||[]).filter(x=>x.who==="partner"), n=fromPt.filter(x=>!x.read_at).length;
+  $("#chatbtn").hidden=!SH()||!fromPt.length; $("#chatN").textContent=n||""; $("#chatN").hidden=!n;
+  $("#chatbtn").setAttribute("aria-label", `${PT()}递来的${n?`，${n} 样没看`:""}`);
+  renderBell();
 }
 
 // 去过：一颗红圆点（淡光晕），选中时外圈泛一圈涟漪；拉远时整体缩小（--pz）
@@ -968,7 +1019,10 @@ function cardHTML(id){
     ${F.map((f,i)=>`<div class="fd"><button class="fr" data-food="${i}" aria-expanded="${!!u.food[i]}">
         ${f.img?`<span class="ft" data-img>${img({...f.img}, "")}</span>`:`<span class="ft ph">${esc((f.orig||f.name).slice(0,1))}</span>`}
         <span class="fn"><b>${esc(f.name)}</b><i>${f.orig&&f.orig!==f.name?esc(f.orig):""}</i></span><span class="chev ${u.food[i]?"up":""}">⌄</span></button>
-      ${u.food[i]?`<div class="fx" data-img>${img(f.img, f.name)}<div class="fxt"><b>${esc(f.name)}</b><i>${f.orig&&f.orig!==f.name?esc(f.orig):""}</i><p>${esc(f.intro)}</p></div></div>`:""}</div>`).join("")}</section>`;
+      ${u.food[i]?`<div class="fx" data-img>${img(f.img, f.name)}<div class="fxt"><b>${esc(f.name)}</b><i>${f.orig&&f.orig!==f.name?esc(f.orig):""}</i><p>${esc(f.intro)}</p>
+        ${SH()?`<button class="pill soft" data-share="food:${i}">${PLANE}<span>递给${esc(PT())}</span></button>`:""}</div></div>`:""}</div>`).join("")}
+    ${SH()?`<div class="seen"><i>看完了？</i><button class="pill soft" data-share="city">${PLANE}<span>把${esc(c.name)}递给${esc(PT())}</span></button></div>`:""}</section>`;
+  if(!F.length && SH()) h+=`<section class="ls"><div class="seen"><i>看完了？</i><button class="pill soft" data-share="city">${PLANE}<span>把${esc(c.name)}递给${esc(PT())}</span></button></div></section>`;
   h+=mineHTML(id);
   const model=D.credit?.model;
   h+=`<footer class="colo">资料：Wikipedia · Wikivoyage（CC BY-SA）${model?`　整理：${esc(model)}`:""}<br>图片：Wikimedia Commons，点开景点可看原条目</footer>`;
@@ -1031,7 +1085,7 @@ function mineHTML(id){
   h+= u.pick==="new" ? originChips(id)
     : ts.length ? `<button class="pill soft again" data-ck-on>＋ 又来了一次</button>`
     : `<button class="pill solid" data-ck-on>来过${esc(c.name)}</button><p class="cks">只是打个卡，不用写日期。点了选从哪儿出发，红线就从那儿连过来。来过几次就点几次。</p>`;
-  return h+`</section>`;
+  return h+`</section>`+(SH()?threadHTML(id):"");
 }
 // ---------- 登机牌：纯文字票面，备注印在票上，随记和照片在「这一次」里 ----------
 // 三字码：取英文名第一个词的前三个字母（Kyōto→KYO、Lisboa→LIS），没有就用 ···
@@ -1067,12 +1121,82 @@ function tripForm(t){
     <label class="tfl" for="tr-${t.id}">票面备注 · 一句话，印在登机牌上（可以空着）</label><input id="tr-${t.id}" name="remark" maxlength="60" value="${esc(t.remark||"")}" placeholder="比如：第一次见到海" autocomplete="off">
     <div class="ckacts"><button class="pill solid">保存</button><button type="button" class="lk" data-tf-cancel>先不了</button></div></form>`;
 }
-// ---------- 「这一次」整页：登机牌（备注印在票上）+ 撕口 + 随记（多段）+ 照片 ----------
-const tp={};   // tid -> {edit, pick, dpick, nadd, ned, off}
+// ---------- 我们的对话：按递送分组（每次递送是单独的一组）+「平时说的」（城市 / 某一次 / 照片 / 随记下的话）----------
+const cmtsOf = t => (state.cmts||[]).filter(c=>c.target===t);
+function cityOfItem(it){ if(it.city) return it.city;
+  if(it.type==="trip") return state.ck.find(t=>t.id===it.id)?.city;
+  if(it.type==="photo"){ const p=(state.photos||[]).find(x=>x.id===it.id); return p&&state.ck.find(t=>t.id===p.trip_id)?.city; }
+  if(it.type==="note"){ const n=(state.notes||[]).find(x=>x.id===it.id); return n&&state.ck.find(t=>t.id===n.trip_id)?.city; } }
+function cityOfTgt(t){ const [k,v]=t.split(":"); if(k==="city") return v;
+  if(k==="share"){ const x=(state.shares||[]).find(s=>s.id===+v); return x&&cityOfItem(x.items[0]); }
+  return cityOfItem({type:k,id:+v}); }
+function whatOf(items){ const k={}; items.forEach(it=>k[it.type]=(k[it.type]||0)+1);
+  if(k.trip) return "整张票"; if(k.city) return "这座城";
+  if(k.sight||k.food){ const it=items[0], arr=DATA[it.city]?.[it.type==="sight"?"sights":"foods"]; return `${it.type==="sight"?"景点":"美食"}「${arr?.[it.i]?.name||""}」`; }
+  return [k.note?`${k.note} 段随记`:"", k.photo?`${k.photo} 张照片`:""].filter(Boolean).join(" + "); }
+function whereOf(t, id){ const [k,v]=t.split(":"); if(k==="city") return "";
+  const tid = k==="trip"?+v : k==="photo"?(state.photos||[]).find(x=>x.id===+v)?.trip_id : (state.notes||[]).find(x=>x.id===+v)?.trip_id;
+  const n=tripsOf(id).findIndex(x=>x.id===tid)+1; return n?`在第 ${n} 次${k==="photo"?"的照片":k==="note"?"的随记":""}下`:""; }
+const thr={};   // 组 key（share:N 或 city:ID）→ {reply: 评论 id}
+function threadHTML(id){
+  const cm=state.cmts||[], byC=Object.fromEntries(cm.map(x=>[x.id,x])), groups=[];
+  (state.shares||[]).forEach(x=>{ if(!x.items.some(it=>cityOfItem(it)===id)) return;
+    const msgs=cm.filter(m=>m.target==="share:"+x.id);
+    groups.push({key:"share:"+x.id, share:x, msgs, last:Math.max(x.created,...msgs.map(m=>m.created))}); });
+  const loose=cm.filter(m=>!m.target.startsWith("share:") && cityOfTgt(m.target)===id);
+  if(loose.length) groups.push({key:"city:"+id, msgs:loose, last:Math.max(...loose.map(m=>m.created))});
+  if(!groups.length) return "";
+  groups.sort((a,b)=>b.last-a.last);
+  const line=(m,key)=>{ const w=key.startsWith("city:")?whereOf(m.target,id):"";
+    return `<div class="cmi ${m.who==="partner"?"pt":"me"}"><p><b>${esc(NAME(m.who))}</b>${m.reply_to&&byC[m.reply_to]?`<span class="rp">回复${esc(NAME(byC[m.reply_to].who))}</span>`:""}${w?`<span class="rp">${w}</span>`:""}${esc(m.text)}</p>
+      <div class="cmm"><span>${ago(m.created)}</span>${m.who!=="me"?`<button class="lk" data-threply="${m.id}" data-tk="${key}">回复</button>`:`<button class="lk" data-cmdel="${m.id}">删</button>`}</div></div>`; };
+  return `<section class="ls ck thread"><div class="sh"><b>我们的对话</b><i>${groups.length} 组</i></div>
+    ${groups.map(g=>{ const R=thr[g.key]?.reply&&byC[thr[g.key].reply], x=g.share, me=x&&x.who==="me";
+      const head = x ? `<div class="tg-h"><span class="tg-k">${me?`你递给${esc(PT())}`:`${esc(PT())}递给你`}</span><b>${esc(whatOf(x.items.filter(it=>cityOfItem(it)===id)))}</b><span class="tg-t">${ago(x.created)}${me&&x.status==="pending"?" · 待送达":""}</span></div>
+          ${x.note?`<div class="cmi ${me?"me":"pt"}"><p><b>${esc(NAME(x.who))}</b>${esc(x.note)}</p></div>`:""}`
+        : `<div class="tg-h"><span class="tg-k">平时说的</span></div>`;
+      return `<div class="cm tgrp">${head}${g.msgs.map(m=>line(m,g.key)).join("")}
+        <form class="thf" data-tk="${g.key}">${R?`<span class="cmr">回复${esc(NAME(R.who))}：「${esc(R.text.slice(0,20))}${R.text.length>20?"…":""}」<button type="button" class="lk" data-thx="${g.key}">不回了</button></span>`:""}
+          <label class="vh-only" for="thf-${esc(g.key)}">回复这一组</label><input id="thf-${esc(g.key)}" name="text" maxlength="2000" placeholder="${R?`回复${esc(NAME(R.who))}…`:x?"回复这次…":"接着说…"}" autocomplete="off" enterkeyhint="send"><button class="pill soft">发</button></form></div>`; }).join("")}
+  </section>`;
+}
+// 挂在某一次 / 照片 / 随记下的话：只有有人说过才出现；每条下面可以「回复」，点了才出输入框
+const cmtReply={};
+function cmtBlock(target){
+  if(!SH()) return "";
+  const cs=cmtsOf(target); if(!cs.length) return "";
+  const by=Object.fromEntries((state.cmts||[]).map(c=>[c.id,c])), r=cmtReply[target] && by[cmtReply[target]];
+  return `<div class="tpc"><b class="tpcl">${esc(PT())}说</b><div class="cm">${cs.map(c=>`<div class="cmi ${c.who==="partner"?"pt":"me"}"><p><b>${esc(NAME(c.who))}</b>${c.reply_to&&by[c.reply_to]?`<span class="rp">回复${esc(NAME(by[c.reply_to].who))}</span>`:""}${esc(c.text)}</p>
+      <div class="cmm"><span>${ago(c.created)}</span>${c.who!=="me"?`<button class="lk" data-reply="${c.id}" data-t="${esc(target)}">回复</button>`:`<button class="lk" data-cmdel="${c.id}">删</button>`}</div></div>`).join("")}
+    ${r?`<form class="cmf" data-t="${esc(target)}"><span class="cmr">回复${esc(NAME(r.who))}：<button type="button" class="lk" data-cmr-x="${esc(target)}">不回了</button></span>
+      <label class="vh-only" for="cmf-${esc(target)}">回复</label><input id="cmf-${esc(target)}" name="text" maxlength="2000" placeholder="回复${esc(NAME(r.who))}…" autocomplete="off" enterkeyhint="send"><button class="pill soft">发</button></form>`:""}</div></div>`;
+}
+function wireCmts(root, after){
+  root.querySelectorAll("[data-reply]").forEach(b=>b.onclick=()=>{ cmtReply[b.dataset.t]=+b.dataset.reply; after(); setTimeout(()=>root.querySelector(`form.cmf[data-t="${b.dataset.t}"] input`)?.focus(),50); });
+  root.querySelectorAll("[data-cmr-x]").forEach(b=>b.onclick=()=>{ delete cmtReply[b.dataset.cmrX]; after(); });
+  root.querySelectorAll("[data-cmdel]").forEach(b=>b.onclick=async()=>{ if(!b._c){ b._c=1; b.textContent="确认删？"; return; }
+    try{ await api("DELETE","comment/"+b.dataset.cmdel); await loadState(); after(); }catch(e){ toast("没删成："+e.message); } });
+  root.querySelectorAll("form.cmf").forEach(f=>f.onsubmit=async e=>{ e.preventDefault(); const text=f.text.value.trim(); if(!text) return; const t=f.dataset.t;
+    try{ await api("POST","comment",{target:t, text, reply_to:cmtReply[t]||null}); delete cmtReply[t]; await loadState(); after(); toast(`回好了，${PT()}那边会收到`); }
+    catch(e){ toast("没发出去："+e.message); } });
+}
+const SOON = () => `过一会儿会送到${PT()}那`;
+// ---------- 「这一次」整页：登机牌（备注印在票上）+ 撕口 + 随记（多段）+ 照片 + 登机口（递整张 / 挑几段几张）----------
+const tp={};   // tid -> {edit, pick, dpick, sel:{n:Set,p:Set}|null, nadd, ned, off, gate}
 function openTrip(tid){
   const t=state.ck.find(x=>x.id===tid), el=$("#trip"); if(!t){ el.hidden=true; return; }
   const c=byId[t.city], ts=tripsOf(t.city), n=ts.findIndex(x=>x.id===tid)+1, o=byId[t.origin], ps=photosOf(tid), ns=notesOf(tid), S=tp[tid]||(tp[tid]={});
   el.hidden=false; el.dataset.tid=tid;
+  const sh=SH(), P=esc(PT());
+  const mine=it=>(it.type==="trip"&&it.id===tid)||(it.type==="photo"&&ps.some(p=>p.id===it.id))||(it.type==="note"&&ns.some(x=>x.id===it.id));
+  const pend=sh?(state.shares||[]).filter(x=>x.who==="me" && x.status==="pending" && x.items.some(mine)):[];
+  const sel=sh?S.sel:null, nsel=sel?sel.n.size+sel.p.size:0;
+  const what=x=>{ const k={trip:0,note:0,photo:0}; x.items.filter(mine).forEach(it=>k[it.type]++); return [k.trip?"整张票":"", k.note?`${k.note} 段随记`:"", k.photo?`${k.photo} 张照片`:""].filter(Boolean).join(" + "); };
+  const gate = !sh ? "" : sel?`<div class="sendbox"><label class="vh-only" for="tpnote">附一句话</label><input id="tpnote" class="aptags" maxlength="500" placeholder="附一句话给${P}（选填）" autocomplete="off">
+        <button class="gate" data-tp="send" ${nsel?"":"disabled"}><span><span class="tk-l">GATE · 递给${P}</span><b>递出${nsel?` ${nsel} 样`:""}</b></span><i>→</i></button></div>`
+      : S.gate?`<div class="gatebox"><button class="gate" data-tp="whole"><span><span class="tk-l">GATE · 递给${P}</span><b>递整张票</b><small>备注、${ns.length} 段随记、${ps.length} 张照片一起</small></span><i>→</i></button>
+          ${ns.length+ps.length?`<button class="gate soft" data-tp="sel"><span><span class="tk-l">GATE · 递给${P}</span><b>挑几段、几张</b></span><i>→</i></button>`:""}<button class="lk" data-tp="gatex">先不递</button></div>`
+      : `<button class="gate" data-tp="gate"><span><span class="tk-l">GATE · 递给${P}</span><b>${ns.length+ps.length?"递整张票，或挑几段、几张":"把这张票递过去"}</b></span><i>→</i></button>`;
   el.innerHTML=`<div class="shin tp bpage">
     <div class="tbp">
       <div class="tk-air"><span class="tk-l">BOARDING PASS · 第 ${n} 次</span><button class="x" aria-label="关闭">×</button></div>
@@ -1084,38 +1208,57 @@ function openTrip(tid){
       ${S.edit||S.pick||S.dpick?"":`<div class="tbp-edit"><button class="lk" data-tp="edit">${t.remark?"改日期和备注":t.date_start?"加一句备注":"补日期 · 加一句备注"}</button><button class="lk" data-tp="pick">改出发地</button><button class="lk" data-tp="dpick">${t.dest?"改终点":"加终点"}</button></div>`}
     </div>
     ${S.edit?tripForm(t):""}${S.pick?originChips(t.city, t.origin||null):""}${S.dpick?destChips(t.city, t.dest||null):""}
+    ${sel?`<div class="selbar"><span>${nsel?`选了 ${[sel.n.size?sel.n.size+" 段":"",sel.p.size?sel.p.size+" 张":""].filter(Boolean).join("、")}`:"点随记或照片，选要递的"}</span><button class="lk" data-tp="all">${nsel===ns.length+ps.length?"全不选":"全选"}</button><button class="lk" data-tp="selx">取消</button></div>`:""}
     <div class="sh2"><b>随记</b><span>${ns.length?ns.length+" 段":"还没有"}</span></div>
     ${ns.map(x=> S.ned===x.id ? `<form class="nf" data-nid="${x.id}"><label class="vh-only" for="nt-${x.id}">改随记</label><textarea id="nt-${x.id}" name="text" rows="5" maxlength="5000">${esc(x.text)}</textarea>
         <div class="ckacts"><button class="pill solid">保存</button><button type="button" class="lk" data-ned-x>先不改</button><button type="button" class="lk warn" data-ndel="${x.id}">删掉这段</button></div></form>`
-      : `<div class="nt"><p>${esc(x.text)}</p><div class="nm"><span>${ago(x.updated||x.created)} 记</span><button class="lk" data-ned="${x.id}">改</button></div></div>`).join("")}
-    ${S.nadd?`<form class="nf" data-new="1"><label class="vh-only" for="ntnew">写一段随记</label><textarea id="ntnew" name="text" rows="5" maxlength="5000" placeholder="这一趟，想记下点什么…长短都行"></textarea>
+      : `<div class="nt ${sel?"selable":""} ${sel?.n.has(x.id)?"on":""}" ${sel?`data-nsel="${x.id}" role="button" tabindex="0"`:""}>${sel?`<i class="ck2">${sel.n.has(x.id)?"✓":""}</i>`:""}<p>${esc(x.text)}</p>
+        ${sel?"":`<div class="nm"><span>${ago(x.updated||x.created)} 记</span>${sh?`<button class="lk" data-nshare="${x.id}">递这段</button>`:""}<button class="lk" data-ned="${x.id}">改</button></div>`}
+        ${sel?"":cmtBlock("note:"+x.id)}</div>`).join("")}
+    ${sel?"":S.nadd?`<form class="nf" data-new="1"><label class="vh-only" for="ntnew">写一段随记</label><textarea id="ntnew" name="text" rows="5" maxlength="5000" placeholder="这一趟，想记下点什么…长短都行"></textarea>
         <div class="ckacts"><button class="pill solid">记下</button><button type="button" class="lk" data-nadd-x>先不写</button></div></form>`
       : `<button class="addsm" data-tp="nadd">＋ 写一段</button>`}
     <div class="sh2"><b>照片</b><span>${ps.length?ps.length+" 张 · 点开看大图":"还没有"}</span></div>
-    ${ps.length?`<div class="pgrid tpg">${ps.map(p=>`<button class="pth" data-ph="${p.id}" aria-label="看照片${p.caption?"："+esc(p.caption):""}"><img src="api/photo/img/${p.id}?w=600" loading="lazy" alt="">${p.caption?`<span class="pcap">${esc(p.caption)}</span>`:""}</button>`).join("")}
-      <button class="pth add" data-addph="${tid}"><b>＋</b><span>加照片</span></button></div>`
-      : `<button class="addsm" data-addph="${tid}">＋ 加照片</button><p class="hint">不放照片也行，有随记就够了。</p>`}
+    ${ps.length?`<div class="pgrid tpg ${sel?"selecting":""}">${ps.map(p=>`<button class="pth ${sel?.p.has(p.id)?"on":""}" data-ph="${p.id}" aria-label="${sel?"选择":"看"}照片${p.caption?"："+esc(p.caption):""}"><img src="api/photo/img/${p.id}?w=600" loading="lazy" alt="">${p.caption?`<span class="pcap">${esc(p.caption)}</span>`:""}${sh&&cmtsOf("photo:"+p.id).length?`<i class="pcn">${cmtsOf("photo:"+p.id).length}</i>`:""}${sel?`<i class="ck2">${sel.p.has(p.id)?"✓":""}</i>`:""}</button>`).join("")}
+      ${sel?"":`<button class="pth add" data-addph="${tid}"><b>＋</b><span>加照片</span></button>`}</div>`
+      : sel?"":`<button class="addsm" data-addph="${tid}">＋ 加照片</button><p class="hint">不放照片也行，有随记就够了。</p>`}
+    ${gate}
+    ${pend.length?`<div class="pend">${pend.map(x=>`<p><span>待送达 · ${what(x)}${x.note?` · “${esc(x.note)}”`:""}</span><button class="lk" data-unshare="${x.id}">撤回</button></p>`).join("")}<p class="hint">一小会儿里连着递的会合成一条送过去；送到之前都能撤回。</p></div>`:""}
+    ${cmtBlock("trip:"+tid)}
     <div class="tpdel"><button class="lk warn" data-tp="off">${S.off?(ps.length||ns.length?"随记和照片也会一起取下，再点一次确认":"再点一次确认"):ts.length>1?"删掉这一次":"取消来过"}</button></div>
   </div>`;
   const close=()=>{ el.hidden=true; el.innerHTML=""; delete tp[tid]; rerender(); };
   el.querySelector(".x").onclick=close; el.onclick=e=>{ if(e.target===el) close(); };
-  const again=()=>openTrip(tid);
+  const again=()=>{ if(!el.hidden && +el.dataset.tid===tid) openTrip(tid); };   // 异步回来时这一层可能已经关了，别把它又打开
+  const share=async(items, note, msg)=>{ try{ await api("POST","share",{items, note}); await loadState(); S.sel=null; S.gate=0; again(); rerender(); toast(msg); }catch(e){ toast("没递出去："+e.message); } };
   el.querySelectorAll("[data-tp]").forEach(b=>b.onclick=async()=>{ const a=b.dataset.tp;
     if(a==="edit"){ S.edit=1; again(); setTimeout(()=>el.querySelector("form.tf input")?.focus(),50); }
     else if(a==="pick"){ S.pick=1; again(); }
     else if(a==="dpick"){ S.dpick=1; again(); }
     else if(a==="nadd"){ S.nadd=1; again(); setTimeout(()=>el.querySelector("#ntnew")?.focus(),50); }
+    else if(a==="gate"){ S.gate=1; again(); }
+    else if(a==="gatex"){ S.gate=0; again(); }
+    else if(a==="whole"){ b.disabled=true; share([{type:"trip",id:tid}], "", `整张票递出了，${SOON()}`); }
+    else if(a==="sel"){ S.gate=0; S.sel={n:new Set(),p:new Set()}; again(); }
+    else if(a==="selx"){ S.sel=null; again(); }
+    else if(a==="all"){ const full=S.sel.n.size+S.sel.p.size===ns.length+ps.length; S.sel={n:new Set(full?[]:ns.map(x=>x.id)), p:new Set(full?[]:ps.map(p=>p.id))}; again(); }
+    else if(a==="send"){ b.disabled=true; const k=S.sel.n.size+S.sel.p.size;
+      share([...[...S.sel.n].map(id=>({type:"note",id})), ...[...S.sel.p].map(id=>({type:"photo",id}))], el.querySelector("#tpnote").value.trim(), `递出 ${k} 样，${SOON()}`); }
     else if(a==="off"){ if(!S.off){ S.off=1; again(); setTimeout(()=>{ if(S.off&&!el.hidden){ S.off=0; again(); } },4000); return; }
       el.hidden=true; el.innerHTML=""; delete tp[tid]; uncheck(t.city, tid); }
   });
-  el.querySelectorAll("[data-ph]").forEach(b=>b.onclick=()=>openPh(+b.dataset.ph));
+  el.querySelectorAll("[data-ph]").forEach(b=>b.onclick=()=>{ const pid=+b.dataset.ph;
+    if(S.sel){ S.sel.p.has(pid)?S.sel.p.delete(pid):S.sel.p.add(pid); again(); } else openPh(pid); });
+  el.querySelectorAll("[data-nsel]").forEach(b=>{ const f=()=>{ const id=+b.dataset.nsel; S.sel.n.has(id)?S.sel.n.delete(id):S.sel.n.add(id); again(); }; b.onclick=f; b.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; });
   el.querySelectorAll("[data-addph]").forEach(b=>b.onclick=()=>openAddPhoto(tid));
-  // 随记：写 / 改 / 删
+  el.querySelectorAll("[data-unshare]").forEach(b=>b.onclick=async()=>{ try{ const r=await api("DELETE","share/"+b.dataset.unshare); await loadState(); again(); rerender(); toast(r.removed?"撤回了":"已经送出去了，撤不回"); }catch(e){ toast("没撤回："+e.message); } });
+  // 随记：写 / 改 / 删 / 递这段
   el.querySelector("[data-nadd-x]")?.addEventListener("click",()=>{ S.nadd=0; again(); });
   el.querySelector("[data-ned-x]")?.addEventListener("click",()=>{ S.ned=0; again(); });
   el.querySelectorAll("[data-ned]").forEach(b=>b.onclick=()=>{ S.ned=+b.dataset.ned; again(); setTimeout(()=>el.querySelector("form.nf textarea")?.focus(),50); });
   el.querySelectorAll("[data-ndel]").forEach(b=>b.onclick=async()=>{ if(!b._c){ b._c=1; b.textContent="确认删？"; return; }
     try{ await api("DELETE","note/"+b.dataset.ndel); await loadState(); S.ned=0; again(); rerender(); toast("删掉了"); }catch(e){ toast("没删成："+e.message); } });
+  el.querySelectorAll("[data-nshare]").forEach(b=>b.onclick=()=>share([{type:"note",id:+b.dataset.nshare}], "", `这段递出了，${SOON()}`));
   el.querySelectorAll("form.nf").forEach(f=>f.onsubmit=async e=>{ e.preventDefault(); const text=f.text.value.trim(); if(!text) return toast("还没写呢");
     try{ if(f.dataset.new) await api("POST",`trip/${tid}/note`,{text}); else await api("PUT","note/"+f.dataset.nid,{text});
       await loadState(); S.nadd=0; S.ned=0; again(); rerender(); toast("记下了 ✓"); }catch(err){ toast("没存上："+err.message); } });
@@ -1131,8 +1274,9 @@ function openTrip(tid){
   el.querySelectorAll("[data-dest]").forEach(b=>b.onclick=async()=>{ S.dpick=0; await setDest(t.city, b.dataset.dest||null, tid); });
   el.querySelector("[data-dest-search]")?.addEventListener("click",()=>{ S.dpick=0; srch.pick={city:t.city,trip:tid,field:"dest"}; srch.q=""; srch.country=null; openSearch(); });
   el.querySelector("[data-dest-x]")?.addEventListener("click",()=>{ S.dpick=0; again(); });
+  wireCmts(el, again);
 }
-document.querySelectorAll("#trip,#sheet").forEach(L=>{ new MutationObserver(()=>{ const sh=L.querySelector(".shin"); if(sh&&!sh._drag){ sh._drag=1; sheetDrag(sh,{onClose:()=>L.querySelector(".x")?.click()}); } }).observe(L,{childList:true}); });
+document.querySelectorAll("#trip,#sheet,#chat").forEach(L=>{ new MutationObserver(()=>{ const sh=L.querySelector(".shin"); if(sh&&!sh._drag){ sh._drag=1; sheetDrag(sh,{onClose:()=>L.querySelector(".x")?.click()}); } }).observe(L,{childList:true}); });
 // ---------- 撕存根进「这一次」（撕的质感参考 github.com/jal-co/boarding-pass 的 tear.ts）----------
 // 票身和存根各自用 clip-path 裁出形状：虚线两端是真的半圆缺口（不是盖两个圆）。
 // 撕 = 进度 p 从上往下推：p 以上的纸桥断开，断口按每段穿孔随机错开（票身和存根互补），p 以下还是直的穿孔线；
@@ -1221,30 +1365,59 @@ async function localFlow(sh, t, files, close){
     await loadState(); close(); rerender(); if(tripOpen()) openTrip(tripOpen()); toast(`挂上 ${ok} 张${dup?`（${dup} 张以前传过，没重复存）`:""}`);
   };
 }
-// 看照片：大图 + 配文（保存 → 已记下 ✓）+ 单选标签 + 取下
-function openPh(pid){
+// 看照片：大图 + 配文（保存 → 已记下 ✓）+ 单选标签 + 只递这一张 + 留言 + 取下
+function openPh(pid, opt={}){
   const p=(state.photos||[]).find(x=>x.id===pid); if(!p) return;
-  const t=state.ck.find(x=>x.id===p.trip_id), ts=tripsOf(t.city), n=ts.findIndex(x=>x.id===t.id)+1, lb=$("#lb");
+  const t=state.ck.find(x=>x.id===p.trip_id), ts=tripsOf(t.city), n=ts.findIndex(x=>x.id===t.id)+1, lb=$("#lb"), sh=SH(), P=esc(PT());
+  const pend=sh&&(state.shares||[]).find(x=>x.who==="me" && x.status==="pending" && x.items.length===1 && x.items[0].type==="photo" && x.items[0].id===pid);
   lb.hidden=false; lb.dataset.pid=pid;
   lb.innerHTML=`<div class="lbin phv"><button class="x" aria-label="关闭">×</button><img class="phimg" src="api/photo/img/${pid}?w=1600" alt="${esc(p.caption||"")}">
     <div class="lbt"><div class="phstrip"><span class="phr">${t.origin&&byId[t.origin]?`${code3(t.origin)} <i>→</i> `:""}${code3(t.city)}</span><span class="tk-l">SEAT ${String(n).padStart(2,"0")}${t.date_start?` · ${esc(fmtTD(t))}`:""}</span></div>
     <label class="vh-only" for="phcap">配文</label><textarea id="phcap" class="phcap" rows="3" maxlength="1000" placeholder="给这张写段配文…">${esc(p.caption||"")}</textarea>
     <div class="capbar"><span class="capst">${p.caption?"✓ 已记下":""}</span><button class="pill soft" data-capsave hidden>保存配文</button></div>
     <div class="tagbar">${TAGS.map(x=>`<button class="tg ${p.tag===x?"on":""}" data-ptag="${esc(x)}">${esc(x)}</button>`).join("")}</div>
+    ${!sh?"": opt.send?`<div class="sendbox"><label class="vh-only" for="phnote">附一句话</label><input id="phnote" class="aptags" maxlength="500" placeholder="附一句话给${P}（选填）" autocomplete="off">
+        <button class="gate" data-phsend><span><span class="tk-l">GATE · 递给${P}</span><b>递出这一张</b></span><i>→</i></button><button class="lk" data-phsendx>先不递</button></div>`
+      : pend?`<div class="pend"><p><span>这张在路上${pend.note?` · “${esc(pend.note)}”`:""}</span><button class="lk" data-unshare="${pend.id}">撤回</button></p></div>`
+      : `<button class="gate" data-phshare><span><span class="tk-l">GATE · 递给${P}</span><b>只递这一张</b></span><i>→</i></button>`}
+    ${cmtBlock("photo:"+pid)}
     <div class="tpdel"><button class="lk warn" data-phdel>取下这张</button></div></div></div>`;
   const close=()=>{ lb.hidden=true; lb.dataset.pid=""; lb.innerHTML=""; rerender(); if(tripOpen()) openTrip(tripOpen()); };
   lb.querySelector(".x").onclick=close; lb.onclick=e=>{ if(e.target===lb) close(); };
   const cap=lb.querySelector(".phcap"), st=lb.querySelector(".capst"), sv=lb.querySelector("[data-capsave]");
   cap.oninput=()=>{ const dirty=cap.value.trim()!==(p.caption||""); sv.hidden=!dirty; st.textContent=dirty?"还没保存":(p.caption?"✓ 已记下":""); st.classList.toggle("dirty",dirty); };
-  sv.onclick=async()=>{ const v=cap.value.trim(); if(v===(p.caption||"")) return;
+  const saveCap=async()=>{ const v=cap.value.trim(); if(v===(p.caption||"")) return;
     sv.disabled=true; st.textContent="保存中…";
     try{ await api("PUT","photo/"+pid,{caption:v}); p.caption=v; sv.hidden=true; st.classList.remove("dirty"); st.textContent=v?"✓ 已记下":"配文清空了"; st.classList.add("pop"); setTimeout(()=>st.classList.remove("pop"),600); }
     catch(e){ st.textContent="没存上，再点一次保存"; } sv.disabled=false; };
+  sv.onclick=saveCap;
   lb.querySelectorAll("[data-ptag]").forEach(b=>b.onclick=async()=>{ const v=p.tag===b.dataset.ptag?null:b.dataset.ptag;
     try{ await api("PUT","photo/"+pid,{tag:v}); p.tag=v; lb.querySelectorAll("[data-ptag]").forEach(x=>x.classList.toggle("on",x.dataset.ptag===v)); toast(v?`标成「${v}」✓`:"标签去掉了"); }catch(e){ toast("没存上："+e.message); } });
+  lb.querySelector("[data-phshare]")?.addEventListener("click",async()=>{ await saveCap(); openPh(pid,{send:1}); setTimeout(()=>lb.querySelector("#phnote")?.focus(),50); });
+  lb.querySelector("[data-phsendx]")?.addEventListener("click",()=>openPh(pid));
+  lb.querySelector("[data-phsend]")?.addEventListener("click",async e=>{ e.currentTarget.disabled=true;
+    try{ await saveCap(); await api("POST","share",{items:[{type:"photo",id:pid}], note:lb.querySelector("#phnote").value.trim()}); await loadState(); if(!lb.hidden&&+lb.dataset.pid===pid) openPh(pid); toast(`递出了，${SOON()}`); }
+    catch(err){ toast("没递出去："+err.message); } });
+  lb.querySelectorAll("[data-unshare]").forEach(b=>b.onclick=async()=>{ try{ const r=await api("DELETE","share/"+b.dataset.unshare); await loadState(); if(!lb.hidden&&+lb.dataset.pid===pid) openPh(pid); toast(r.removed?"撤回了":"已经送出去了，撤不回"); }catch(e){ toast("没撤回："+e.message); } });
   const del=lb.querySelector("[data-phdel]");
   del.onclick=async()=>{ if(!del._c){ del._c=1; del.textContent="确认取下？"; return; }
     try{ await api("DELETE","photo/"+pid); await loadState(); close(); toast("取下了"); }catch(e){ toast("没取下："+e.message); } };
+  wireCmts(lb, ()=>{ if(!lb.hidden && +lb.dataset.pid===pid) openPh(pid); });
+}
+// 递城市 / 某个景点 / 某道菜：纸飞机 → 一个小面板（附不附图、附一句话）→ 进「待送达」
+async function shareThing(id, what){
+  const [k,i]=what.split(":"), item = k==="city" ? {type:"city",city:id} : {type:k,city:id,i:+i};
+  const name = k==="city" ? byId[id].name : (DATA[id]?.[k==="sight"?"sights":"foods"]?.[+i]?.name||"");
+  const sh=$("#sheet"), P=esc(PT()); sh.hidden=false;   // 自己旅行的照片一定附图；城市/景点/美食由你选附不附图
+  sh.innerHTML=`<div class="shin ap"><div class="aph"><b>把「${esc(name)}」递给${P}</b><button class="x" aria-label="关闭">×</button></div>
+    <label class="apalb"><input type="checkbox" name="img" checked><span>附上图片<i>附了${P}直接看到；不附就只给一句怎么取图</i></span></label>
+    <label class="vh-only" for="shnote">附一句话</label><input id="shnote" class="aptags" maxlength="500" placeholder="附一句话（选填）" autocomplete="off">
+    <button class="gate" data-go><span><span class="tk-l">GATE · 递给${P}</span><b>递出</b></span><i>→</i></button></div>`;
+  const close=()=>{ sh.hidden=true; sh.innerHTML=""; };
+  sh.querySelector(".x").onclick=close; sh.onclick=e=>{ if(e.target===sh) close(); };
+  sh.querySelector("[data-go]").onclick=async e=>{ const b=e.currentTarget; b.disabled=true;
+    try{ await api("POST","share",{items:[item], note:sh.querySelector("#shnote").value.trim(), img:sh.querySelector("[name=img]").checked}); await loadState(); close(); rerender(); toast(`把「${name}」递出了，${SOON()}`); }
+    catch(err){ toast("没递出去："+err.message); b.disabled=false; } };
 }
 // pick：「new」= 新记一次；数字 = 改那一次的出发地
 async function setOrigin(id, origin, pick){
@@ -1267,7 +1440,7 @@ function sightSheet(id,i,from){
   const x=DATA[id].sights[i], lb=$("#lb"); lb.hidden=false; lb.classList.add("sheet-in");
   lb.innerHTML=`<div class="lbin ls-sheet"><button class="x" aria-label="关闭">×</button>${x.img?img(x.img,x.name,"sh-img"):""}
     <div class="lbt"><b class="st">${esc(x.name)}</b><i class="so">${x.orig&&x.orig!==x.name?esc(x.orig):""}</i><p class="bp">${esc(x.intro)}</p>
-    ${x.src?`<div class="va"><a class="lk" href="${esc(x.src)}" target="_blank" rel="noopener">维基原条目 ↗</a></div>`:""}</div></div>`;
+    ${x.src||SH()?`<div class="va">${x.src?`<a class="lk" href="${esc(x.src)}" target="_blank" rel="noopener">维基原条目 ↗</a>`:""}${SH()?`<button class="pill solid" data-share="sight:${i}">${PLANE}<span>递给${esc(PT())}</span></button>`:""}</div>`:""}</div></div>`;
   const big=lb.querySelector(".sh-img"), small=from?.querySelector("img");
   // FLIP：大图先摆到小卡片的位置，再动画回到自己的位置
   const flip=(reverse)=>{
@@ -1282,6 +1455,7 @@ function sightSheet(id,i,from){
   const close=async()=>{ lb.classList.remove("sheet-in"); lb.classList.add("sheet-out"); await flip(true).catch(()=>{}); lb.hidden=true; lb.classList.remove("sheet-out"); };
   lb.querySelector(".x").onclick=close;
   lb.onclick=e=>{ if(e.target===lb) close(); };
+  lb.querySelector("[data-share]")?.addEventListener("click",()=>shareThing(id, "sight:"+i));
 }
 
 function openCity(id, opt={}){
@@ -1304,6 +1478,16 @@ function wireCard(card,id){
   card.querySelector("[data-more]")?.addEventListener("click",()=>{ u.more=!u.more; re(); });
   card.querySelectorAll("[data-food]").forEach(b=>b.onclick=()=>{ u.food[b.dataset.food]=!u.food[b.dataset.food]; re(); });
   card.querySelectorAll(".tk[data-trip]").forEach(tearable);
+  card.querySelectorAll("[data-share]").forEach(b=>b.onclick=()=>shareThing(id, b.dataset.share));
+  // 对话组：递送那组回在 share:N 下；「平时说的」回某条就沿用那条挂的地方，不然挂在城市下
+  card.querySelectorAll("[data-threply]").forEach(b=>b.onclick=()=>{ thr[b.dataset.tk]={reply:+b.dataset.threply}; re(); setTimeout(()=>card.querySelector(`form.thf[data-tk="${b.dataset.tk}"] input`)?.focus(),50); });
+  card.querySelectorAll("[data-thx]").forEach(b=>b.onclick=()=>{ thr[b.dataset.thx]={}; re(); });
+  card.querySelectorAll("form.thf").forEach(f=>f.onsubmit=async e=>{ e.preventDefault(); const text=f.text.value.trim(); if(!text) return; const key=f.dataset.tk;
+    const R=thr[key]?.reply&&(state.cmts||[]).find(c=>c.id===thr[key].reply);
+    const target = key.startsWith("share:") ? key : (R ? R.target : key);
+    try{ await api("POST","comment",{target, text, reply_to:R?R.id:null}); thr[key]={}; await loadState(); re(); toast(`发出去了，${PT()}那边会收到`); }
+    catch(err){ toast("没发出去："+err.message); } });
+  wireCmts(card, re);
   card.querySelector("[data-gen]")?.addEventListener("click",e=>{ e.currentTarget.disabled=true; startGen(id, card.querySelector("#genpro")?.checked); });
   card.querySelector("[data-wish-on]")?.addEventListener("click",()=>{ u.wishing=1; re(); setTimeout(()=>card.querySelector(".wf2 input")?.focus(),50); });
   card.querySelector("[data-wish-edit]")?.addEventListener("click",()=>{ u.wishing=1; re(); setTimeout(()=>card.querySelector(".wf2 input")?.focus(),50); });
@@ -1375,6 +1559,69 @@ function closeCard(){
   world.pathsData([]); const p=world.pointOfView(); world.pointOfView({lat:p.lat,lng:p.lng,altitude:innerWidth<700?2.6:2},1200);
 }
 
+
+// ---------- 「递来的」收件箱：partner 递来的城市 / 景点 / 美食，点开即已读 ----------
+function itemName(it){ const c=byId[it.city]; if(!c) return it.city; if(it.type==="city") return c.name;
+  const arr=DATA[it.city]?.[it.type==="sight"?"sights":"foods"]; return `${c.name} · ${arr?.[it.i]?.name || (it.type==="sight"?"一个景点":"一道菜")}`; }
+async function openChat(){
+  const ch=$("#chat"), items=(state.shares||[]).filter(x=>x.who==="partner").slice().reverse();
+  await Promise.all([...new Set(items.flatMap(x=>x.items.filter(it=>it.type!=="city").map(it=>it.city)))].map(id=>IDX[id]&&DATA[id]===undefined?loadCity(id):0));
+  ch.hidden=false;
+  ch.innerHTML=`<div class="shin ap inbox"><div class="aph"><b>${esc(PT())}递来的</b><button class="x" aria-label="关闭">×</button></div>
+    ${items.map(x=>{ const it=x.items[0]; return `<button class="ib ${x.read_at?"":"new"}" data-sid="${x.id}" data-city="${esc(it.city)}" data-kind="${it.type}" data-i="${it.i??""}">
+      <span class="tk-l">${it.type==="city"?"一座城":it.type==="sight"?"一个景点":"一道菜"} · ${ago(x.created)}</span>
+      <b>${esc(itemName(it))}</b>${x.note?`<span class="ibn">“${esc(x.note)}”</span>`:""}${x.read_at?"":`<i class="ibd" aria-label="没看过"></i>`}</button>`; }).join("") || `<p class="hint">还没递过东西。</p>`}</div>`;
+  const close=()=>{ ch.hidden=true; ch.innerHTML=""; };
+  ch.querySelector(".x").onclick=close; ch.onclick=e=>{ if(e.target===ch) close(); };
+  ch.querySelectorAll(".ib").forEach(b=>b.onclick=async()=>{ const sid=+b.dataset.sid, city=b.dataset.city, kind=b.dataset.kind, i=+b.dataset.i;
+    try{ await api("PUT",`share/${sid}/read`); await loadState(); renderSide(); }catch(e){}
+    close(); if(selId) selId=null; await loadCity(city); openCity(city);
+    if(kind==="sight") setTimeout(()=>{ const el=document.querySelector(`[data-sight="${i}"]`); el&&sightSheet(city,i,el); },900);
+    if(kind==="food") setTimeout(()=>{ const u=ui[city]; if(u){ u.food[i]=1; rerender(); } document.querySelector(`[data-food="${i}"]`)?.scrollIntoView({behavior:"smooth",block:"center"}); },900); });
+}
+
+// ---------- 通知：Web Push（sw.js 只管 push 和点开，不做离线缓存）----------
+const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+const STANDALONE = matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
+const PUSH_OK = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window && window.isSecureContext;
+let pushSub=null;
+async function swReg(){ try{ return await navigator.serviceWorker.register("sw.js"); }catch(e){ return null; } }
+async function initPush(){
+  if(!SH()||!state.cfg.features?.push_web||!PUSH_OK()) return renderBell();
+  const reg=await swReg(); try{ pushSub=reg&&await reg.pushManager.getSubscription(); }catch(e){ pushSub=null; }
+  renderBell();
+}
+function renderBell(){
+  const b=$("#bellbtn"); if(!b) return;
+  b.hidden=!(SH() && state.cfg.features?.push_web && (PUSH_OK() || (IOS && !STANDALONE)));
+  b.classList.toggle("on", !!pushSub); b.setAttribute("aria-label", pushSub?"通知已开启":"开启通知");
+}
+const u8 = s => { const p="=".repeat((4-s.length%4)%4), b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/")); return Uint8Array.from(b,c=>c.charCodeAt(0)); };
+function openBell(){
+  const sh=$("#sheet"), P=esc(PT()); sh.hidden=false;
+  const need=IOS&&!STANDALONE&&!PUSH_OK();
+  sh.innerHTML=`<div class="shin ap ntf"><div class="aph"><b>通知</b><button class="x" aria-label="关闭">×</button></div>
+    <p class="hint">${P}留言、递东西给你、点亮星星的时候，这台设备会响一下。</p>
+    ${need?`<button class="pill solid" disabled>开启通知</button><p class="hint">iPhone / iPad：先在 Safari 里点「分享 → 添加到主屏幕」，从主屏幕打开经停，再回到这里开启。</p>`
+      : pushSub?`<p class="hint">✓ 这台设备已经开启了。</p><button class="pill soft warn" data-off>关掉这台设备的通知</button>`
+      : `<button class="pill solid" data-on>开启通知</button>${IOS?`<p class="hint">iPhone / iPad 要从主屏幕打开才收得到。</p>`:""}`}</div>`;
+  const close=()=>{ sh.hidden=true; sh.innerHTML=""; };
+  sh.querySelector(".x").onclick=close; sh.onclick=e=>{ if(e.target===sh) close(); };
+  sh.querySelector("[data-on]")?.addEventListener("click",async e=>{ const b=e.currentTarget; b.disabled=true;
+    try{
+      if(await Notification.requestPermission()!=="granted") throw new Error("没有允许通知（可以在浏览器设置里改）");
+      const reg=await swReg(); if(!reg) throw new Error("service worker 没注册上"); await navigator.serviceWorker.ready;
+      const k=await getJSON("api/push/vapid"); if(!k.ok) throw new Error(k.reason||"服务器没开 Web Push");
+      pushSub=await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:u8(k.publicKey)});
+      await api("POST","push/web",{subscription:pushSub.toJSON()}); renderBell(); openBell(); toast("通知开启了");
+    }catch(err){ toast("没开成："+err.message); b.disabled=false; } });
+  sh.querySelector("[data-off]")?.addEventListener("click",async()=>{
+    try{ const ep=pushSub.endpoint; await pushSub.unsubscribe(); pushSub=null; await api("DELETE","push/web",{endpoint:ep}); }catch(e){}
+    renderBell(); openBell(); toast("这台设备不再收通知"); });
+}
+// 点开通知 → 打开那座城（页面开着时 sw.js 发消息过来；没开时带 ?city= 打开）
+if("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message",async e=>{ const d=e.data||{}; if(d.type!=="open"||!d.city) return;
+  try{ await loadState(); renderSide(); refreshLayers(); }catch(err){} if(byId[d.city]){ if(selId) selId=null; await loadCity(d.city); openCity(d.city); } });
 
 // ---------- 摇骰子：地球转起来，停在一座城 ----------
 function rollDice(scope){
@@ -1471,6 +1718,8 @@ let tt; function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;cle
 document.querySelectorAll("#styles button").forEach(b=>b.onclick=()=>{ if(b.dataset.s!==current) build(b.dataset.s); });
 
 $("#srchbtn").onclick=openSearch;
+$("#chatbtn").onclick=openChat;
+$("#bellbtn").onclick=openBell;
 $("#dice").onclick=()=>{ const p=$("#dicepop"); p.hidden=!p.hidden; };
 document.querySelectorAll("#dicepop [data-scope]").forEach(b=>b.onclick=()=>rollDice(b.dataset.scope));
 
@@ -1499,5 +1748,9 @@ addEventListener("keydown",e=>{ if(e.key!=="Escape") return; const open=[...docu
   if(!STYLES[start]) start="marble";
   if(typeof Globe==="undefined"){ $("#globe").innerHTML='<p style="padding:120px 16px;color:var(--muted)">地球库没加载上，刷新一下试试。</p>'; return; }
   await build(start);
+  initPush();
+  // 深链：?city=<id> 或 #city=<id>（推送、聊天卡片点进来）
+  const q=new URLSearchParams(location.search).get("city") || new URLSearchParams(location.hash.slice(1)).get("city");
+  if(q && byId[q]){ await loadCity(q); openCity(q); }
 })();
 </script>

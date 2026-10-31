@@ -4,3 +4,7 @@ python-multipart
 pillow
 pillow-heif
 opencc-python-reimplemented
+# v2 pushes to your devices (the server runs without these; /api/config then reports push_web / push_apns = false)
+pywebpush
+httpx[http2]
+PyJWT[crypto]
