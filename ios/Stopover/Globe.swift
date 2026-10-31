@@ -12,8 +12,8 @@ enum StopoverStyle: String, CaseIterable {
     var pin: UIColor { [.marble: UIColor(hex: 0xd8262f), .night: UIColor(hex: 0xff5a3c), .paper: UIColor(hex: 0xb3261e)][self]! }
     var arc: UIColor { [.marble: UIColor(hex: 0xf19a8f), .night: UIColor(hex: 0xecd2a6), .paper: UIColor(hex: 0xc0533f)][self]! }
     var atmosphere: UIColor? { [.marble: UIColor(hex: 0x8cc4ff), .night: UIColor(hex: 0xffcf8a)][self] }
-    var star: UIColor { [.marble: UIColor(hex: 0xf3deb0), .night: UIColor(hex: 0xf6e6c2), .paper: UIColor(hex: 0xb07a10)][self]! }
-    var star2: UIColor { [.marble: UIColor(hex: 0x9fd0ff), .night: UIColor(hex: 0xb4d8ff), .paper: UIColor(hex: 0x3F5F86)][self]! }
+    var star: UIColor { [.marble: UIColor(hex: 0xf2c25e), .night: UIColor(hex: 0xf5c96a), .paper: UIColor(hex: 0xb07a10)][self]! }
+    var star2: UIColor { [.marble: UIColor(hex: 0x6cb4ff), .night: UIColor(hex: 0x78bcff), .paper: UIColor(hex: 0x3F5F86)][self]! }
     var label: UIColor { self == .paper ? UIColor(hex: 0x1F2A38) : UIColor(hex: 0xf3efe6) }
     var isDark: Bool { self != .paper }
 }
@@ -93,6 +93,8 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
     /// 红线上的流星: 贴图沿线平移,亮头拖尾从出发地滑到目的地
     private struct Comet { let pts: [SIMD3<Float>]; let sprites: [SCNNode]; let offset: Double }
     private var comets: [Comet] = []
+    /// Wish-star twinkle: (white overlay node, phase, period in seconds), driven per frame
+    private var twinkles: [(node: SCNNode, phase: Double, period: Double)] = []
     private let cometPeriod = 7.0          // 秒/一轮: 跑完一趟约 4 秒,再歇 3 秒
     static let cometDots = 14
     private var dotScale: Float = 1
@@ -395,6 +397,7 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
         let tailImg = Self.softDot(style.isDark ? style.arc : style.pin, core: false)
         let blend: SCNBlendMode = style.isDark ? .add : .alpha
         comets = []
+        twinkles = []
         for (i, a) in m.arcs.enumerated() {
             let pts = Self.arcPoints(a.from, a.to)
             guard pts.count > 1 else { continue }
@@ -425,14 +428,27 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
         }
 
         for s in m.stars {
-            let n = SCNNode(geometry: SCNPlane(width: 0.04, height: 0.04))
+            let n = SCNNode(geometry: SCNPlane(width: 0.075, height: 0.075))   // larger canvas so the twinkle can bloom; the star itself is the same size
             let sm = SCNMaterial()
             sm.lightingModel = .constant
             sm.diffuse.contents = Self.starImage(s.hers && s.his ? [style.star, style.star2] : [s.hers ? style.star : style.star2])
             sm.writesToDepthBuffer = false
             n.geometry?.firstMaterial = sm
             n.position = Self.position(lat: s.lat, lng: s.lng, alt: 1.01)
+            n.name = "pin"   // scales with zoom like the dots
+            n.renderingOrder = 7
             n.constraints = [SCNBillboardConstraint()]
+            // Twinkle brighter, never dimmer (a dimmed star vanishes when zoomed out): an additive white star on top
+            let fm = SCNMaterial()
+            fm.lightingModel = .constant
+            fm.diffuse.contents = Self.starImage([.white])
+            fm.writesToDepthBuffer = false
+            fm.blendMode = .add
+            let flash = SCNNode(geometry: SCNPlane(width: 0.075, height: 0.075))
+            flash.geometry?.firstMaterial = fm
+            flash.renderingOrder = 8
+            n.addChildNode(flash)
+            twinkles.append((flash, .random(in: 0...(2 * .pi)), .random(in: 1.6...2.6)))
             marksNode.addChildNode(n)
         }
         apply()
@@ -526,6 +542,14 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
         }
         if moved { apply() }
         moveComets()
+        let t = CACurrentMediaTime()
+        for w in twinkles {
+            let k = Float(0.5 + 0.5 * sin(t * 2 * .pi / w.period + w.phase))
+            let f = k * k * k   // calm most of the time, a brief flash now and then
+            w.node.opacity = CGFloat(0.85 * f)
+            let sc = 1 + 0.3 * f
+            w.node.scale = SCNVector3(sc, sc, sc)
+        }
     }
 
     private func moveComets() {
@@ -725,8 +749,9 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
 
     /// Round, soft star; both want to go = left half gold, right half blue
     static func starImage(_ colors: [UIColor]) -> UIImage {
-        UIGraphicsImageRenderer(size: CGSize(width: 96, height: 96)).image { ctx in
+        UIGraphicsImageRenderer(size: CGSize(width: 180, height: 180)).image { ctx in
             let cg = ctx.cgContext
+            cg.translateBy(x: 42, y: 42)
             let path = UIBezierPath()
             for i in 0..<10 {
                 let r: CGFloat = i % 2 == 0 ? 40 : 21
