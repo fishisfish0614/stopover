@@ -555,6 +555,6 @@ s      = hex(HMAC-SHA256(secret, "photo:{pid}:{w}"))[:32]
 
 ---
 
-### 附：已知不一致 / Known mismatches
+### 附：注意 / Notes
 
 - 城市 id 里可能有空格和非 ASCII（`n_San Bernardino_34.122`）：客户端拼路径时要做百分号编码（网页用 `encodeURIComponent`），服务端按解码后的路径参数匹配。
