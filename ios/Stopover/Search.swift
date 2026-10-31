@@ -297,62 +297,90 @@ struct StopoverSearch: View {
     }
 }
 
-// MARK: - \(StopoverStore.shared.config.partner)递来的
+// MARK: - 往来 (all / mine / partner's)
 
-/// \(StopoverStore.shared.config.partner)递的列表: 一座城 / 一个景点 / 一道菜 · 时间 · 他的附言 · 未读红点。
+/// Everything handed over: a city / sight / dish / ticket / photo / note · time · note · unread dot on the partner's.
 /// 点一条 = 标已读 + 打开那座城(景点就弹那张景点,菜就展开那道菜)
 struct StopoverInbox: View {
     @ObservedObject var store: StopoverStore
     let open: (String) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var names: [Int: String] = [:]
+    @State private var who = ""   // "" all / "me" / "partner"
+    private var list: [StopoverShare] { who.isEmpty ? store.allShares : store.allShares.filter { $0.who == who } }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("\(StopoverStore.shared.config.partner)递来的").font(StopoverK.serif(18, .semibold)).foregroundStyle(StopoverK.ink)
+                Text("往来").font(StopoverK.serif(18, .semibold)).foregroundStyle(StopoverK.ink)
                 Spacer()
+                HStack(spacing: 14) {
+                    filter("", "全部")
+                    filter("me", "\(store.config.me)递的")
+                    filter("partner", "\(store.config.partner)递的")
+                }
+                .padding(.trailing, 14)
                 Button { dismiss() } label: { Text("×").font(.system(size: 22)).foregroundStyle(StopoverK.ink2) }.buttonStyle(.plain)
             }
             .padding(.horizontal, 20).padding(.top, 20).padding(.bottom, 10)
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
-                    if store.fromPartner.isEmpty {
-                        Text("\(store.config.partner)还没递过东西。").font(StopoverK.serif(14)).foregroundStyle(StopoverK.ink2).padding(.vertical, 20)
+                    if list.isEmpty {
+                        Text(who == "partner" ? "\(store.config.partner)还没递过东西。" : "还没有往来。").font(StopoverK.serif(14)).foregroundStyle(StopoverK.ink2).padding(.vertical, 20)
                     }
-                    ForEach(store.fromPartner) { x in row(x) }
+                    ForEach(list) { x in row(x) }
                 }
                 .padding(.horizontal, 20).padding(.bottom, 30)
             }
         }
         .background(Image(uiImage: StopoverK.paperTile).resizable(resizingMode: .tile).ignoresSafeArea())
+        .onAppear { if store.unreadFromPartner > 0 { who = "partner" } }
         .task {
-            for x in store.fromPartner { if let it = x.items.first { names[x.id] = await store.itemName(it) } }
+            for x in store.allShares { if let it = x.items.first { names[x.id] = await store.itemName(it) } }
         }
+    }
+
+    private func filter(_ w: String, _ label: String) -> some View {
+        Button { withAnimation(.easeOut(duration: 0.2)) { who = w } } label: {
+            VStack(spacing: 3) {
+                Text(label).font(StopoverK.serif(14, who == w ? .semibold : .regular))
+                    .foregroundStyle(who == w ? StopoverK.ink : StopoverK.ink2)
+                Capsule().fill(who == w ? StopoverK.ink : .clear).frame(width: 14, height: 2)
+            }
+            .overlay(alignment: .topTrailing) {
+                if w == "partner", store.unreadFromPartner > 0 {
+                    Circle().fill(Color(UIColor(hex: 0xd8262f))).frame(width: 6, height: 6).offset(x: 6, y: -2)
+                }
+            }
+            .frame(minHeight: 44).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func row(_ x: StopoverShare) -> some View {
         let it = x.items.first
-        let kind = it?.type == "city" ? "一座城" : it?.type == "sight" ? "一个景点" : it?.type == "food" ? "一道菜" : "一样东西"
+        let kinds = ["city": "一座城", "sight": "一个景点", "food": "一道菜", "trip": "一张票", "photo": "一张照片", "note": "一段话"]
+        let kind = x.id < 0 ? "想和你去" : (x.items.count > 1 ? "\(x.items.count) 样 · " : "") + (kinds[it?.type ?? ""] ?? "一样东西")
+        let mine = x.who == "me"
         return Button {
             guard let it, let c = it.city else { return }
-            Task { await store.markRead(x.id) }
+            if !mine, x.id > 0 { Task { await store.markRead(x.id) } }
             if it.type == "sight" || it.type == "food", let i = it.i { store.cardFocus = (c, it.type, i) }
             dismiss()
             open(c)
         } label: {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("\(kind) · \(TripPage.ago(x.created))").font(StopoverK.mono(10, .medium)).tracking(1.2)
+                    Text("\(mine ? store.config.me : store.config.partner)递的 · \(kind) · \(TripPage.ago(x.created))").font(StopoverK.mono(10, .medium)).tracking(1.2)
                         .foregroundStyle(StopoverK.sky)
-                    Text(names[x.id] ?? store.cities[it?.city ?? ""]?.name ?? "").font(StopoverK.serif(17, .semibold))
+                    Text(names[x.id].flatMap { $0.isEmpty ? nil : $0 } ?? store.cities[it?.city ?? ""]?.name ?? kind).font(StopoverK.serif(17, .semibold))
                         .foregroundStyle(StopoverK.ink)
                     if !x.note.isEmpty {
                         Text("“\(x.note)”").font(StopoverK.serif(14)).foregroundStyle(StopoverK.ink2)
                     }
                 }
                 Spacer()
-                if x.readAt == nil { Circle().fill(Color(UIColor(hex: 0xd8262f))).frame(width: 8, height: 8).padding(.top, 6) }
+                if !mine, x.readAt == nil { Circle().fill(Color(UIColor(hex: 0xd8262f))).frame(width: 8, height: 8).padding(.top, 6) }
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)

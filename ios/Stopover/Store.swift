@@ -64,6 +64,7 @@ struct StopoverWish: Equatable {
     let city: String
     let by: String     // "me" | "partner"
     let note: String
+    var created: Double = 0
 }
 
 struct StopoverConfig: Equatable {
@@ -160,7 +161,7 @@ final class StopoverStore: ObservableObject {
         }
         wishes = (j["wishes"] as? [[String: Any]] ?? []).compactMap { w in
             guard let city = w["city"] as? String, let by = w["by"] as? String else { return nil }
-            return StopoverWish(city: city, by: by, note: (w["note"] as? String) ?? "")
+            return StopoverWish(city: city, by: by, note: (w["note"] as? String) ?? "", created: (w["created"] as? Double) ?? 0)
         }
     }
 
@@ -330,6 +331,15 @@ final class StopoverStore: ObservableObject {
     }
 
     var fromPartner: [StopoverShare] { shares.filter { $0.who == "partner" }.sorted { $0.created > $1.created } }
+    /// Everything either of you handed over, newest first (the 往来 page). A wish the partner added
+    /// is stored as a wish, not a share, but reads like a hand-over, so it's folded in as a read-only row (negative id)
+    var allShares: [StopoverShare] {
+        let theirs = wishes.filter { $0.by == "partner" }.enumerated().map { i, w in
+            StopoverShare(id: -(i + 1), who: "partner", items: [.init(type: "city", id: nil, city: w.city, i: nil)],
+                          note: w.note, status: "sent", created: w.created, readAt: w.created)
+        }
+        return (shares + theirs).sorted { $0.created > $1.created }
+    }
     var unreadFromPartner: Int { fromPartner.filter { $0.readAt == nil }.count }
 
     func markRead(_ id: Int) async {
