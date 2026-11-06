@@ -351,14 +351,44 @@ final class StopoverStore: ObservableObject {
         await reloadState()
     }
 
+    /// Which city an item belongs to. Photos, tickets and notes only carry an id; nil if it was removed
+    func city(of it: StopoverShare.Item) -> String? {
+        if let c = it.city { return c }
+        switch it.type {
+        case "trip": return checkins.first { $0.id == it.id }?.city
+        case "photo": return photos.first { $0.id == it.id }.flatMap { p in checkins.first { $0.id == p.tripId }?.city }
+        case "note": return notes.first { $0.id == it.id }.flatMap { n in checkins.first { $0.id == n.tripId }?.city }
+        default: return nil
+        }
+    }
+
     /// City name / sight name / dish name for an inbox row
     func itemName(_ it: StopoverShare.Item) async -> String {
-        guard let c = it.city else { return "" }
+        guard let c = city(of: it) else { return "" }
         let city = cities[c]?.name ?? c
+        switch it.type {
+        case "photo": return "\(city)的一张照片"
+        case "note": return "\(city)的一段话"
+        case "trip": return "\(city)的一张票"
+        default: break
+        }
         guard it.type == "sight" || it.type == "food", let i = it.i,
               let j = await profile(c), let list = j[it.type == "sight" ? "sights" : "foods"] as? [[String: Any]],
               i < list.count else { return city }
         return "\(city)的\(it.type == "sight" ? "景点" : "美食")「\(list[i]["name"] as? String ?? "")」"
+    }
+
+    /// After opening a card from the inbox: go straight into this trip; leaf is the page to pull out (BinderLeaf.id)
+    @Published var tripFocus: (trip: Int, leaf: String?)?
+
+    func tripFocus(of it: StopoverShare.Item) -> (trip: Int, leaf: String?)? {
+        guard let id = it.id else { return nil }
+        switch it.type {
+        case "trip": return checkins.contains { $0.id == id } ? (id, nil) : nil
+        case "photo": return photos.first { $0.id == id }.map { ($0.tripId, "p\(id)") }
+        case "note": return notes.first { $0.id == id }.map { ($0.tripId, "n\(id)") }
+        default: return nil
+        }
     }
 
     /// After opening a card from the inbox: which sight to pop / dish to expand

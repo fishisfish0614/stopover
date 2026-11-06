@@ -62,6 +62,7 @@ Each stopover is a frosted-glass folder. The trip's photos peek out of the top, 
 </p>
 
 - **Poster pages**: every photo gets a page tinted from its own colors. The photo fades into that color and the city name sits across the seam. Captions are set by length: a short line is a headline, a longer one is body text, and a very long one gets a drop cap. The number, day, time and coordinates are printed below.
+- **The conversation stays with the photo**: when you hand a photo over, the back-and-forth appears right under its poster page, where you can reply. Tap its slip in the inbox (往来) and the globe flies there and pulls that page out.
 - **Captions while uploading**: pick several photos and write a caption for each. Dates are forgiving too: `2019.8.3`, `2019/8/3`, `2019年8月3日` and `20190803` all work, and so does just a year or month.
 
 <p align="center"><img src="docs/img/trip-upload.png" width="240" alt="Writing a caption for each photo while uploading"></p>

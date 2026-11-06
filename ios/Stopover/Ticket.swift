@@ -445,6 +445,9 @@ private struct VLine: Shape {
 struct TripPage: View {
     let tripId: Int
     @ObservedObject var store: StopoverStore
+    /// 进来就抽出这一页(BinderLeaf.id),往来跳过来用
+    var focusLeaf: String? = nil
+    @State private var gridTouched = false
     @Environment(\.dismiss) private var dismiss
     @State private var photo: StopoverPhoto?
     @State private var sheet: TripSheet?
@@ -480,11 +483,13 @@ struct TripPage: View {
         let trips = store.trips(t.city)
         let n = (trips.firstIndex { $0.id == t.id } ?? 0) + 1
         return Group {
-            if gridMode || sel != nil {
+            // 跳过来要看那一页,网格模式也先走活页夹;手动切过就按手动的
+            if (gridMode && (focusLeaf == nil || gridTouched)) || sel != nil {
                 gridContent(t, n: n, trips: trips)
             } else {
                 StopoverBinderPage(
                     trip: t, store: store,
+                    focusLeaf: focusLeaf,
                     ticket: AnyView(darkPass(t, n: n)),
                     gatePage: AnyView(VStack(alignment: .leading, spacing: 12) {
                         gateArea(t, ns: store.notes(trip: t.id), ps: store.photos(trip: t.id))
@@ -617,7 +622,7 @@ struct TripPage: View {
                 tkLabel("BOARDING PASS · 第 \(n) 次", dark: true)
                 Spacer()
                 if sel == nil {
-                    Button { withAnimation(.easeOut(duration: 0.2)) { gridMode.toggle() } } label: {
+                    Button { gridTouched = true; withAnimation(.easeOut(duration: 0.2)) { gridMode.toggle() } } label: {
                         Image(systemName: gridMode ? "rectangle.split.3x1" : "square.grid.3x3")
                             .font(.system(size: 15)).foregroundStyle(Color(UIColor(hex: 0xcbd5e2))).frame(width: 36, height: 36)
                     }
@@ -781,7 +786,8 @@ struct TripPage: View {
     }
 
     private var noteField: some View {
-        TextField("附一句话给\(StopoverStore.shared.config.partner)（选填）", text: $sendNote)
+        TextField("", text: $sendNote, prompt: Text("附一句话给\(StopoverStore.shared.config.partner)（选填）").foregroundStyle(StopoverK.ink2.opacity(0.7)))
+                .foregroundStyle(StopoverK.ink).tint(StopoverK.harbor)
             .font(StopoverK.serif(15)).padding(12)
             .background(TK.card, in: RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(StopoverK.ink.opacity(0.1)))
@@ -1150,7 +1156,8 @@ struct ShareThingSheet: View {
                 }
             }
             .tint(StopoverK.harbor)
-            TextField("附一句话（选填）", text: $note)
+            TextField("", text: $note, prompt: Text("附一句话（选填）").foregroundStyle(StopoverK.ink2.opacity(0.7)))
+                .foregroundStyle(StopoverK.ink).tint(StopoverK.harbor)
                 .font(StopoverK.serif(15)).padding(12)
                 .background(TK.card, in: RoundedRectangle(cornerRadius: 10))
             Button {
@@ -1218,7 +1225,8 @@ struct CommentBlock: View {
                             Button("不回了") { replyTo = nil; text = "" }.font(.system(size: 12)).foregroundStyle(StopoverK.harbor)
                         }
                         HStack(spacing: 8) {
-                            TextField("回复 \(StopoverStore.shared.config.name(r.who))…", text: $text, axis: .vertical)
+                            TextField("", text: $text, prompt: Text("回复 \(StopoverStore.shared.config.name(r.who))…").foregroundStyle(StopoverK.ink2.opacity(0.7)), axis: .vertical)
+                                .foregroundStyle(StopoverK.ink).tint(StopoverK.harbor)
                                 .font(StopoverK.serif(15)).lineLimit(1...5)
                                 .padding(.horizontal, 10).padding(.vertical, 8)
                                 .background(TK.card, in: RoundedRectangle(cornerRadius: 8))
@@ -1373,7 +1381,8 @@ private struct PhotoBig: View {
             .background(Color(UIColor(hex: 0xD8CBB2)).opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
         } else if sendOpen {
             VStack(alignment: .leading, spacing: 10) {
-                TextField("附一句话给\(StopoverStore.shared.config.partner)（选填）", text: $sendNote)
+                TextField("", text: $sendNote, prompt: Text("附一句话给\(StopoverStore.shared.config.partner)（选填）").foregroundStyle(StopoverK.ink2.opacity(0.7)))
+                .foregroundStyle(StopoverK.ink).tint(StopoverK.harbor)
                     .font(StopoverK.serif(15)).padding(12)
                     .background(Color(UIColor(hex: 0xF4F1EB)), in: RoundedRectangle(cornerRadius: 10))
                 Button {

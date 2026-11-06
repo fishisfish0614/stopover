@@ -74,6 +74,9 @@ struct StopoverCityCard: View {
     private var hasProfile: Bool { store.cities[city.id]?.hasProfile ?? city.hasProfile }
     @State private var genPro = false
     @State private var openTrip: Int?
+    /// 从往来跳来的: 不走撕票,直接进那一次
+    @State private var directTrip = false
+    @State private var directLeaf: String?
     @State private var ticketFrames: [Int: CGRect] = [:]
     @State private var pickingOrigin = false
     @State private var sharing: ShareWhat?
@@ -129,9 +132,19 @@ struct StopoverCityCard: View {
                 await store.checkGen(city.id)
             }
             loaded = true
+            // 资料拉完再盖全屏: 盖上去会取消这个 task,拉到一半长卷就空了
+            if let f = store.tripFocus, store.checkins.first(where: { $0.id == f.trip })?.city == city.id {
+                store.tripFocus = nil
+                // 等抽屉出来再盖,不然被转场吞掉
+                try? await Task.sleep(for: .seconds(0.4))
+                directTrip = true; directLeaf = f.leaf
+                openTrip = f.trip
+            }
         }
         .fullScreenCover(item: Binding(get: { openTrip.map(TripID.init) }, set: { openTrip = $0?.id })) { t in
-            if let trip = store.checkins.first(where: { $0.id == t.id }) {
+            if directTrip {
+                TripPage(tripId: t.id, store: store, focusLeaf: directLeaf)
+            } else if let trip = store.checkins.first(where: { $0.id == t.id }) {
                 TearStage(trip: trip, seat: (store.trips(city.id).firstIndex { $0.id == t.id } ?? 0) + 1,
                           from: ticketFrames[t.id] ?? .zero, store: store)
                     .presentationBackground(.clear)
@@ -287,6 +300,7 @@ struct StopoverCityCard: View {
             ForEach(Array(ts.enumerated()), id: \.element.id) { i, t in
                 Button {
                     var tx = Transaction(); tx.disablesAnimations = true
+                    directTrip = false
                     withTransaction(tx) { openTrip = t.id }
                 } label: {
                     BoardingPass(trip: t, seat: i + 1, store: store)

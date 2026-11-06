@@ -19,13 +19,7 @@ struct StopoverThreads: View {
     }
 
     private func cityOf(_ it: StopoverShare.Item) -> String? {
-        if let c = it.city { return c }
-        switch it.type {
-        case "trip": return store.checkins.first { $0.id == it.id }?.city
-        case "photo": return store.photos.first { $0.id == it.id }.flatMap { p in store.checkins.first { $0.id == p.tripId }?.city }
-        case "note": return store.notes.first { $0.id == it.id }.flatMap { n in store.checkins.first { $0.id == n.tripId }?.city }
-        default: return nil
-        }
+        store.city(of: it)
     }
 
     private func cityOf(target t: String) -> String? {
@@ -97,7 +91,7 @@ struct StopoverThreads: View {
     }
 }
 
-private struct ThreadGroup: View {
+struct ThreadGroup: View {
     let key: String
     let share: StopoverShare?
     let msgs: [StopoverComment]
@@ -105,12 +99,23 @@ private struct ThreadGroup: View {
     let whereOf: (StopoverComment) -> String?
     @ObservedObject var store: StopoverStore
     let city: String
+    var looseTitle = "平时说的"
+    /// 输入框拿到焦点时报一声: 海报页要把它滚到键盘上面
+    var onFocus: ((String) -> Void)? = nil
+    /// 印在海报底色上: 不要卡片,全用浅色字(底色每张不同,但都压得很深)
+    var onPoster = false
     @State private var replyTo: StopoverComment?
     @State private var text = ""
     @State private var busy = false
     @State private var confirmDel: Int?
+    @FocusState private var inputFocused: Bool
 
-    private let yy = Color(UIColor(hex: 0x3e6a9e)), me = Color(UIColor(hex: 0x9a6a12))
+    private var yy: Color { onPoster ? Color(UIColor(hex: 0xB9D2EE)) : Color(UIColor(hex: 0x3e6a9e)) }
+    private var me: Color { onPoster ? Color(UIColor(hex: 0xF0CF96)) : Color(UIColor(hex: 0x9a6a12)) }
+    private var inkC: Color { onPoster ? StopoverK.paper : StopoverK.ink }
+    private var metaC: Color { onPoster ? StopoverK.paper.opacity(0.65) : StopoverK.sky }
+    private var timeC: Color { onPoster ? StopoverK.paper.opacity(0.55) : Color(UIColor(hex: 0x8a93a0)) }
+    private var actionC: Color { onPoster ? StopoverK.paper.opacity(0.85) : StopoverK.harbor }
 
     var body: some View {
         let by = Dictionary(uniqueKeysWithValues: msgs.map { ($0.id, $0) })
@@ -119,16 +124,16 @@ private struct ThreadGroup: View {
             if let s = share {
                 let mine = s.who != "partner"
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(mine ? "你递给\(StopoverStore.shared.config.partner)" : "\(StopoverStore.shared.config.partner)递给你").font(StopoverK.mono(10, .medium)).tracking(1.2).foregroundStyle(StopoverK.sky)
-                    Text(headWhat).font(StopoverK.serif(15, .semibold)).foregroundStyle(StopoverK.ink)
+                    Text(mine ? "你递给\(StopoverStore.shared.config.partner)" : "\(StopoverStore.shared.config.partner)递给你").font(StopoverK.mono(10, .medium)).tracking(1.2).foregroundStyle(metaC)
+                    Text(headWhat).font(StopoverK.serif(15, .semibold)).foregroundStyle(inkC)
                     Spacer(minLength: 0)
                     Text(TripPage.ago(s.created) + (mine && s.status == "pending" ? " · 两分钟内送到" : ""))
-                        .font(.system(size: 11)).foregroundStyle(Color(UIColor(hex: 0x8a93a0)))
+                        .font(.system(size: 11)).foregroundStyle(timeC)
                 }
                 .padding(.bottom, 6)
                 if !s.note.isEmpty { line(who: StopoverStore.shared.config.name(s.who), text: s.note, extra: nil, time: nil, c: nil) }
             } else {
-                Text("平时说的").font(StopoverK.mono(10, .medium)).tracking(1.2).foregroundStyle(StopoverK.sky).padding(.bottom, 6)
+                Text(looseTitle).font(StopoverK.mono(10, .medium)).tracking(1.2).foregroundStyle(metaC).padding(.bottom, 6)
             }
             ForEach(msgs) { m in
                 line(who: StopoverStore.shared.config.name(m.who), text: m.text,
@@ -139,17 +144,22 @@ private struct ThreadGroup: View {
             VStack(alignment: .leading, spacing: 6) {
                 if let r = replyTo {
                     HStack {
-                        Text("回复 \(StopoverStore.shared.config.name(r.who))：「\(String(r.text.prefix(20)))\(r.text.count > 20 ? "…" : "")」").font(.system(size: 12)).foregroundStyle(StopoverK.sky)
+                        Text("回复 \(StopoverStore.shared.config.name(r.who))：「\(String(r.text.prefix(20)))\(r.text.count > 20 ? "…" : "")」").font(.system(size: 12)).foregroundStyle(metaC)
                             .lineLimit(1)
                         Spacer()
-                        Button("不回了") { replyTo = nil }.font(.system(size: 12)).foregroundStyle(StopoverK.harbor)
+                        Button("不回了") { replyTo = nil }.font(.system(size: 12)).foregroundStyle(actionC)
                     }
                 }
                 HStack(spacing: 8) {
-                    TextField(replyTo.map { "回复 \(StopoverStore.shared.config.name($0.who))…" } ?? (share != nil ? "回复这次…" : "接着说…"), text: $text, axis: .vertical)
+                    // 页面可能压着深色模式,系统默认的字色在浅底上看不见,要写死
+                    TextField("", text: $text, prompt: Text(replyTo.map { "回复 \(StopoverStore.shared.config.name($0.who))…" } ?? (share != nil ? "回复这次…" : "接着说…")).foregroundStyle(onPoster ? StopoverK.paper.opacity(0.55) : StopoverK.ink2.opacity(0.7)), axis: .vertical)
                         .font(StopoverK.serif(15)).lineLimit(1...5)
-                        .padding(.horizontal, 10).padding(.vertical, 8)
-                        .background(Color(UIColor(hex: 0xF4F1EB)), in: RoundedRectangle(cornerRadius: 8))
+                        .foregroundStyle(inkC).tint(onPoster ? StopoverK.paper : StopoverK.harbor)
+                        .padding(.horizontal, onPoster ? 14 : 10).padding(.vertical, onPoster ? 10 : 8)
+                        .background(onPoster ? StopoverK.paper.opacity(0.13) : Color(UIColor(hex: 0xF4F1EB)),
+                                    in: RoundedRectangle(cornerRadius: onPoster ? 18 : 8, style: .continuous))
+                        .focused($inputFocused)
+                        .onChange(of: inputFocused) { _, on in if on { onFocus?(key) } }
                         .onChange(of: text) { _, v in if v.count > 2000 { text = String(v.prefix(2000)) } }
                     Button {
                         let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -162,28 +172,29 @@ private struct ThreadGroup: View {
                             busy = false
                         }
                     } label: {
-                        Text(busy ? "发着…" : "发").font(.system(size: 14)).foregroundStyle(StopoverK.harbor)
+                        Text(busy ? "发着…" : "发").font(.system(size: 14)).foregroundStyle(onPoster ? StopoverK.paper : StopoverK.harbor)
                             .padding(.horizontal, 14).frame(minHeight: 36)
-                            .background(Capsule().fill(StopoverK.harbor.opacity(0.12)))
+                            .background(Capsule().fill(onPoster ? StopoverK.paper.opacity(0.16) : StopoverK.harbor.opacity(0.12)))
                     }
                     .buttonStyle(.plain).disabled(busy)
                 }
             }
             .padding(.top, 10)
         }
-        .padding(.horizontal, 12).padding(.vertical, 12)
-        .background(StopoverK.harbor.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.horizontal, onPoster ? 0 : 12).padding(.vertical, 12)
+        .background(onPoster ? Color.clear : StopoverK.harbor.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(alignment: .top) { if onPoster { StopoverK.paper.opacity(0.3).frame(height: 1) } }
     }
 
     private func line(who: String, text: String, extra: String?, time: Double?, c: StopoverComment?) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             (Text(who + " ").font(StopoverK.serif(14.5, .bold)).foregroundColor(who == StopoverStore.shared.config.partner ? yy : me)
-             + Text(extra.map { $0.isEmpty ? "" : $0 + " " } ?? "").font(.system(size: 12)).foregroundColor(StopoverK.sky)
-             + Text(text).font(StopoverK.serif(14.5)).foregroundColor(StopoverK.ink))
+             + Text(extra.map { $0.isEmpty ? "" : $0 + " " } ?? "").font(.system(size: 12)).foregroundColor(metaC)
+             + Text(text).font(StopoverK.serif(14.5)).foregroundColor(inkC))
                 .lineSpacing(5).fixedSize(horizontal: false, vertical: true)
             if let time, let c {
                 HStack(spacing: 14) {
-                    Text(TripPage.ago(time)).font(.system(size: 11)).foregroundStyle(Color(UIColor(hex: 0x8a93a0)))
+                    Text(TripPage.ago(time)).font(.system(size: 11)).foregroundStyle(timeC)
                     if c.who == "partner" {
                         Button("回复") { replyTo = c }
                     } else {
@@ -193,7 +204,7 @@ private struct ThreadGroup: View {
                         }
                     }
                 }
-                .font(.system(size: 12)).foregroundStyle(StopoverK.harbor)
+                .font(.system(size: 12)).foregroundStyle(actionC)
             }
         }
         .padding(.vertical, 6)

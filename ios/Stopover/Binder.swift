@@ -374,6 +374,8 @@ private struct BinderScrollHook: UIViewRepresentable {
 struct StopoverBinderPage: View {
     let trip: StopoverCheckin
     @ObservedObject var store: StopoverStore
+    /// 进来就从文件夹里抽出这一页(BinderLeaf.id)
+    var focusLeaf: String? = nil
     let ticket: AnyView
     let gatePage: AnyView
     let talkPage: AnyView
@@ -394,6 +396,11 @@ struct StopoverBinderPage: View {
     @State private var openToken = 0
     @State private var ticketH: CGFloat = 0
     @State private var entryFrames: [String: CGRect] = [:]
+    @State private var folderRect: CGRect = .zero
+    @State private var focusDone = false
+    // 内页里的对话: 键盘盖住输入框时把那组滚上来
+    @State private var keyboardH: CGFloat = 0
+    @State private var threadFocus: String?
     @State private var scroll = ScrollRef()
 
     // 正抽着 / 抽出来的那页
@@ -472,9 +479,27 @@ struct StopoverBinderPage: View {
             // 抽出来的这张被取下了,插回去
             if case .photo(let p, _)? = active?.leaf, !ps.contains(where: { $0.id == p.id }) { close() }
         }
+        .task { await openFocusLeaf() }
     }
 
     // MARK: 文件夹
+
+    /// 从往来跳来的: 等版面和图就绪,让那一页从文件夹里抽出来;关掉正好回到文件夹
+    private func openFocusLeaf() async {
+        guard !focusDone, let id = focusLeaf else { return }
+        focusDone = true
+        guard let leaf = leaves.first(where: { $0.id == id }) else { return }
+        if case .photo(let p, _) = leaf { images.request(p.id, big: false) }
+        for _ in 0..<15 {
+            var ready = ticketH > 0 && folderRect != .zero
+            if case .photo(let p, _) = leaf, images.images[p.id] == nil { ready = false }
+            if ready { break }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        try? await Task.sleep(for: .milliseconds(250))
+        guard active == nil else { return }
+        openEntry(leaf, from: folderRect)
+    }
 
     private struct FolderLayout {
         var backRect: CGRect     // 文件夹占的整块;前片贴它的底
@@ -577,6 +602,7 @@ struct StopoverBinderPage: View {
         }
         .contentShape(shape)
         .onTapGesture { tapFolder(f) }
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .named("binderPage")) } action: { if !opened { folderRect = $0 } }
         .rotation3DEffect(.degrees(opened ? -112 : 0), axis: (1, 0, 0), anchor: .bottom, perspective: 0.5)
         .animation(opened ? .easeIn(duration: 0.28) : .spring(response: 0.36, dampingFraction: 0.82).delay(0.2), value: opened)
         .opacity(opened ? 0 : 1)
@@ -1043,6 +1069,7 @@ struct StopoverBinderPage: View {
     }
 
     private func settledPage(_ a: Active, screen: CGSize, insets: EdgeInsets) -> some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: 0) {
             Group {
@@ -1101,6 +1128,51 @@ struct StopoverBinderPage: View {
             .buttonStyle(.plain)
             .padding(.trailing, 16).padding(.top, insets.top + 6)
             .opacity(textIn ? 1 : 0)
+        }
+        // 整页是 ignoresSafeArea 的,系统不会替它让键盘,自己来
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { n in
+            let end = (n.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect) ?? .zero
+            keyboardH = max(0, screen.height - end.minY)
+            scrollThread(proxy)
+        }
+        .onChange(of: threadFocus) { _, _ in scrollThread(proxy) }
+        }
+    }
+
+    private func scrollThread(_ proxy: ScrollViewProxy) {
+        guard keyboardH > 0, let k = threadFocus else { return }
+        DispatchQueue.main.async { withAnimation(.easeOut(duration: 0.25)) { proxy.scrollTo("end:" + k, anchor: .bottom) } }
+    }
+
+    /// 这张照片 / 这段随记的对话: 每次递它出去单独一组,直接在它下面说的另成一组。一条都没有就不画
+    @ViewBuilder
+    private func threads(type: String, id: Int, label: String, poster: Bool = false) -> some View {
+        if sharing {
+            let shares = store.shares.filter { s in s.items.contains { $0.type == type && $0.id == id } }
+                .sorted { $0.created > $1.created }
+            let loose = store.comments("\(type):\(id)").sorted { $0.created < $1.created }
+            VStack(alignment: .leading, spacing: 12) {
+                ForEach(shares) { s in
+                    threadCard(ThreadGroup(key: "share:\(s.id)", share: s,
+                                           msgs: store.comments("share:\(s.id)").sorted { $0.created < $1.created },
+                                           headWhat: s.items.count > 1 ? "\(s.items.count) 样" : label,
+                                           whereOf: { _ in nil }, store: store, city: trip.city,
+                                           onFocus: { threadFocus = $0 }, onPoster: poster), key: "share:\(s.id)")
+                }
+                if !loose.isEmpty {
+                    threadCard(ThreadGroup(key: "\(type):\(id)", share: nil, msgs: loose, headWhat: "",
+                                           whereOf: { _ in nil }, store: store, city: trip.city,
+                                           looseTitle: "在这下面说的",
+                                           onFocus: { threadFocus = $0 }, onPoster: poster), key: "\(type):\(id)")
+                }
+            }
+        }
+    }
+
+    private func threadCard(_ g: ThreadGroup, key: String) -> some View {
+        VStack(spacing: 0) {
+            g
+            Color.clear.frame(height: threadFocus == key && keyboardH > 0 ? keyboardH + 12 : 0).id("end:" + key)
         }
     }
 
@@ -1176,13 +1248,7 @@ struct StopoverBinderPage: View {
                     Text(cap).font(StopoverK.serif(19)).foregroundStyle(ink).lineSpacing(11)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                let cs = store.comments("photo:\(p.id)")
-                if sharing, !cs.isEmpty {
-                    // 评论的字是深色的,垫一张纸
-                    CommentBlock(comments: cs, target: "photo:\(p.id)", store: store)
-                        .padding(14)
-                        .background(StopoverK.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                }
+                threads(type: "photo", id: p.id, label: "这张照片", poster: true).padding(.top, 6)
             }
             .padding(.horizontal, 20).padding(.top, 16)
             .opacity(textIn ? 1 : 0)
@@ -1219,8 +1285,7 @@ struct StopoverBinderPage: View {
                 Button("改") { editNote(n) }
             }
             .font(.system(size: 13)).foregroundStyle(StopoverK.harbor)
-            let cs = store.comments("note:\(n.id)")
-            if sharing, !cs.isEmpty { CommentBlock(comments: cs, target: "note:\(n.id)", store: store) }
+            threads(type: "note", id: n.id, label: "这段随记")
         }
         .padding(.horizontal, 22).padding(.top, insets.top + 64)
         .opacity(textIn ? 1 : 0)

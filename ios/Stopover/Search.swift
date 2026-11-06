@@ -42,8 +42,8 @@ struct StopoverSearch: View {
     private var bar: some View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass").foregroundStyle(StopoverK.ink2)
-            TextField(pickHint == nil ? "搜城市或国家，中文英文都行" : "搜出发地，比如 上海", text: $q)
-                .font(StopoverK.serif(16)).foregroundStyle(StopoverK.ink)
+            TextField("", text: $q, prompt: Text(pickHint == nil ? "搜城市或国家，中文英文都行" : "搜出发地，比如 上海").foregroundStyle(StopoverK.ink2.opacity(0.7)))
+                .font(StopoverK.serif(16)).foregroundStyle(StopoverK.ink).tint(StopoverK.harbor)
                 .focused($focused).submitLabel(.search)
                 .onSubmit { if let first = cityHits.first { choose(first.id) } }
                 .onChange(of: q) { _, _ in country = nil }
@@ -363,9 +363,11 @@ struct StopoverInbox: View {
         let kind = x.id < 0 ? "想和你去" : (x.items.count > 1 ? "\(x.items.count) 样 · " : "") + (kinds[it?.type ?? ""] ?? "一样东西")
         let mine = x.who == "me"
         return Button {
-            guard let it, let c = it.city else { return }
+            // 照片 / 票 / 随记只带 id,要查回它在哪座城
+            guard let it, let c = store.city(of: it) else { return }
             if !mine, x.id > 0 { Task { await store.markRead(x.id) } }
             if it.type == "sight" || it.type == "food", let i = it.i { store.cardFocus = (c, it.type, i) }
+            store.tripFocus = store.tripFocus(of: it)
             dismiss()
             open(c)
         } label: {
@@ -373,7 +375,7 @@ struct StopoverInbox: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(mine ? store.config.me : store.config.partner)递的 · \(kind) · \(TripPage.ago(x.created))").font(StopoverK.mono(10, .medium)).tracking(1.2)
                         .foregroundStyle(StopoverK.sky)
-                    Text(names[x.id].flatMap { $0.isEmpty ? nil : $0 } ?? store.cities[it?.city ?? ""]?.name ?? kind).font(StopoverK.serif(17, .semibold))
+                    Text(names[x.id].flatMap { $0.isEmpty ? nil : $0 } ?? it.flatMap(store.city(of:)).flatMap { store.cities[$0]?.name } ?? kind).font(StopoverK.serif(17, .semibold))
                         .foregroundStyle(StopoverK.ink)
                     if !x.note.isEmpty {
                         Text("“\(x.note)”").font(StopoverK.serif(14)).foregroundStyle(StopoverK.ink2)
