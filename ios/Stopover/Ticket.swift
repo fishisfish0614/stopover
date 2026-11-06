@@ -455,6 +455,8 @@ struct TripPage: View {
     @State private var sel: (n: Set<Int>, p: Set<Int>)?
     @State private var sendNote = ""
     @State private var sending = false
+    // 活页夹是默认;老网格留着: 票右上角能切,挑几段几张也走它
+    @AppStorage("stopover.tripGrid") private var gridMode = false
 
     enum TripSheet: Identifiable {
         case info, origin, dest, newNote, note(StopoverNote), addPhoto
@@ -477,6 +479,50 @@ struct TripPage: View {
     private func content(_ t: StopoverCheckin) -> some View {
         let trips = store.trips(t.city)
         let n = (trips.firstIndex { $0.id == t.id } ?? 0) + 1
+        return Group {
+            if gridMode || sel != nil {
+                gridContent(t, n: n, trips: trips)
+            } else {
+                StopoverBinderPage(
+                    trip: t, store: store,
+                    ticket: AnyView(darkPass(t, n: n)),
+                    gatePage: AnyView(VStack(alignment: .leading, spacing: 12) {
+                        gateArea(t, ns: store.notes(trip: t.id), ps: store.photos(trip: t.id))
+                        pendingBox(t)
+                    }),
+                    talkPage: AnyView(talkBody(t)),
+                    editPhoto: { photo = $0 },
+                    editNote: { sheet = .note($0) },
+                    shareNote: { x in
+                        Task { await store.share([["type": "note", "id": x.id]], done: "这段递出了，两分钟内会送到\(store.config.partner)那") }
+                    },
+                    newNote: { sheet = .newNote },
+                    addPhoto: { sheet = .addPhoto },
+                    sharing: store.config.share
+                )
+            }
+        }
+        .preferredColorScheme(.dark)   // 只为了状态栏字变白;页面颜色都是写死的
+        .sheet(item: $photo) { p in
+            PhotoBig(photo: p, trip: t, seat: n, store: store)
+                .presentationDetents([.large])
+        }
+        .sheet(item: $sheet) { which in
+            tripSheet(which, t)
+        }
+    }
+
+    @ViewBuilder private func talkBody(_ t: StopoverCheckin) -> some View {
+        let cs = store.comments("trip:\(t.id)")
+        if cs.isEmpty {
+            Text("这张票上\(store.config.partner)还没说什么。").font(StopoverK.serif(15)).foregroundStyle(StopoverK.ink2)
+        } else {
+            CommentBlock(comments: cs, target: "trip:\(t.id)", store: store)
+        }
+    }
+
+    /// 老的网格页
+    private func gridContent(_ t: StopoverCheckin, n: Int, trips: [StopoverCheckin]) -> some View {
         let ns = store.notes(trip: t.id), ps = store.photos(trip: t.id)
         return ScrollView {
             VStack(alignment: .leading, spacing: 12) {
@@ -536,12 +582,9 @@ struct TripPage: View {
         }
         .scrollIndicators(.hidden)
         .background(Image(uiImage: StopoverK.paperTile).resizable(resizingMode: .tile).ignoresSafeArea())
-        .preferredColorScheme(.dark)   // 只为了状态栏字变白;页面颜色都是写死的
-        .sheet(item: $photo) { p in
-            PhotoBig(photo: p, trip: t, seat: n, store: store)
-                .presentationDetents([.large])
-        }
-        .sheet(item: $sheet) { which in
+    }
+
+    private func tripSheet(_ which: TripSheet, _ t: StopoverCheckin) -> some View {
             Group {
                 switch which {
                 case .info: TripInfoForm(trip: t, store: store)
@@ -565,7 +608,6 @@ struct TripPage: View {
             }
             .presentationDetents([.medium, .large])
             .presentationBackground(StopoverK.paper)
-        }
     }
 
     /// 上半深色整张票,底边一排小半圆撕口
@@ -574,6 +616,13 @@ struct TripPage: View {
             HStack {
                 tkLabel("BOARDING PASS · 第 \(n) 次", dark: true)
                 Spacer()
+                if sel == nil {
+                    Button { withAnimation(.easeOut(duration: 0.2)) { gridMode.toggle() } } label: {
+                        Image(systemName: gridMode ? "rectangle.split.3x1" : "square.grid.3x3")
+                            .font(.system(size: 15)).foregroundStyle(Color(UIColor(hex: 0xcbd5e2))).frame(width: 36, height: 36)
+                    }
+                    .buttonStyle(.plain)
+                }
                 Button { dismiss() } label: {
                     Text("×").font(.system(size: 24)).foregroundStyle(Color(UIColor(hex: 0xcbd5e2))).frame(width: 36, height: 36)
                 }
@@ -847,11 +896,15 @@ private struct FormHead: View {
     }
 }
 
-private func formField(_ label: String, _ text: Binding<String>, placeholder: String, limit: Int? = nil) -> some View {
+private func formField(_ label: String, _ text: Binding<String>, placeholder: String, limit: Int? = nil, date: Bool = false) -> some View {
     VStack(alignment: .leading, spacing: 6) {
         Text(label).font(.system(size: 12.5)).foregroundStyle(StopoverK.ink2)
-        TextField(placeholder, text: text)
+        // 页面压着深色模式,系统默认的提示字在浅底上看不见,要写死颜色
+        TextField("", text: text, prompt: Text(placeholder).foregroundStyle(StopoverK.ink2.opacity(0.7)))
             .font(StopoverK.serif(16)).foregroundStyle(StopoverK.ink)
+            .tint(StopoverK.harbor)
+            .keyboardType(date ? .numbersAndPunctuation : .default)
+            .autocorrectionDisabled(date)
             .padding(.horizontal, 12).padding(.vertical, 10)
             .background(TK.card, in: RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(StopoverK.ink.opacity(0.12)))
@@ -868,6 +921,28 @@ private func solidPill(_ t: String, busy: Bool = false, _ action: @escaping () -
     .buttonStyle(.plain).disabled(busy)
 }
 
+/// 服务端只认 2019 / 2019-08 / 2019-08-03。手写的 2019.8.3、2019/8/3、2019年8月3日、20190803 都翻译过去。
+/// 空着回 "";看不懂回 nil
+enum TripDateInput {
+    static func normalize(_ raw: String) -> String? {
+        var s = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        if s.isEmpty { return "" }
+        if s.count == 8, s.allSatisfy(\.isNumber) {
+            s = "\(s.prefix(4))-\(s.dropFirst(4).prefix(2))-\(s.suffix(2))"
+        }
+        let parts = s.split(whereSeparator: { ".。．/／-－—–年月日 ".contains($0) }).map(String.init)
+        guard (1...3).contains(parts.count), parts[0].count == 4,
+              let nums = Optional(parts.compactMap { Int($0) }), nums.count == parts.count else { return nil }
+        if nums.count >= 2, !(1...12).contains(nums[1]) { return nil }
+        if nums.count == 3 {
+            let c = DateComponents(year: nums[0], month: nums[1], day: nums[2])
+            guard Calendar(identifier: .gregorian).date(from: c) != nil, (1...31).contains(nums[2]),
+                  c.isValidDate(in: Calendar(identifier: .gregorian)) else { return nil }
+        }
+        return ([String(format: "%04d", nums[0])] + nums.dropFirst().map { String(format: "%02d", $0) }).joined(separator: "-")
+    }
+}
+
 /// 改日期和备注: 日期记得就写,不记得就空着;备注一句话 ≤60 字,印在票上
 struct TripInfoForm: View {
     let trip: StopoverCheckin
@@ -877,27 +952,40 @@ struct TripInfoForm: View {
     @State private var end = ""
     @State private var remark = ""
     @State private var busy = false
+    @State private var problem: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             FormHead(title: "日期记得就写，不记得就空着")
-            HStack(spacing: 10) {
-                formField("从", $start, placeholder: "2019 / 2019-08 / 2019-08-03")
-                formField("到", $end, placeholder: "选填")
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 10) {
+                    formField("从", $start, placeholder: "2019.8.3", date: true)
+                    formField("到", $end, placeholder: "选填", date: true)
+                }
+                Text("只记得年或月也行：2019、2019.8").font(.system(size: 12)).foregroundStyle(StopoverK.ink2)
             }
             formField("票面备注 · 一句话，印在登机牌上（可以空着）", $remark, placeholder: "比如：第一次见地中海", limit: 60)
             HStack(spacing: 18) {
                 solidPill("保存", busy: busy) {
+                    guard let from = TripDateInput.normalize(start), let to = TripDateInput.normalize(end) else {
+                        problem = "这个日期我看不懂，写成 2019.8.3 这样试试"
+                        return
+                    }
+                    problem = nil
                     busy = true
                     Task {
-                        let ok = await store.updateTrip(trip.id, ["date_start": start.trimmingCharacters(in: .whitespaces),
-                                                                  "date_end": end.trimmingCharacters(in: .whitespaces),
+                        let ok = await store.updateTrip(trip.id, ["date_start": from, "date_end": to,
                                                                   "remark": remark.trimmingCharacters(in: .whitespaces)])
                         busy = false
-                        if ok { dismiss() }
+                        // 失败的提示在表单后面的页面上,会被挡住,这里也说一声
+                        if ok { dismiss() } else { problem = store.toast ?? "没存上，一会儿再试" }
                     }
                 }
                 Button("先不了") { dismiss() }.font(.system(size: 14)).foregroundStyle(StopoverK.harbor)
+            }
+            if let problem {
+                Text(problem).font(.system(size: 13)).foregroundStyle(Color(UIColor(hex: 0x9a2a22)))
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
         }

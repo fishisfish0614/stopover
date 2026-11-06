@@ -36,6 +36,8 @@ struct StopoverGlobe: UIViewRepresentable {
     var focus: SIMD2<Double>?
     /// 骰子: 每加一次,地球先甩开转半圈
     var kick = 0
+    /// 上面盖着搜索 / 收件箱这些页面: 不算闲着,回来才开始数 8 秒
+    var covered = false
     var onTap: (_ lat: Double, _ lng: Double, _ distance: Double) -> Void
 
     func makeCoordinator() -> GlobeController { GlobeController() }
@@ -56,6 +58,7 @@ struct StopoverGlobe: UIViewRepresentable {
         c.setPlaces(places)
         c.setKick(kick)
         c.setFocus(focus)
+        c.setCovered(covered)
     }
 
     static func dismantleUIView(_ v: SCNView, coordinator: GlobeController) { coordinator.stop() }
@@ -81,6 +84,8 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
     private var distance = 3.5          // 相机到球心,球半径 1
     private var velocity = SIMD2<Double>(0, 0)
     private var lastTouch = Date.distantPast
+    private var covered = false
+    private var lastTick = CACurrentMediaTime()
     private var flight: (from: SIMD3<Double>, to: SIMD3<Double>, start: CFTimeInterval, dur: Double)?
     private var link: CADisplayLink?
 
@@ -318,9 +323,16 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
         fly(toLat: centerLat * 0.3, lng: centerLng + 200, dist: Self.maxDist * 0.85, dur: 0.9)
     }
 
+    func setCovered(_ c: Bool) {
+        guard c != covered else { return }
+        covered = c
+        lastTouch = Date()
+    }
+
     func setFocus(_ f: SIMD2<Double>?) {
         guard f != focus else { return }
         focus = f
+        lastTouch = Date()   // 关掉抽屉回到地球: 从这一刻重新数 8 秒
         lastLabelKey = ""
         focusRing.childNodes.forEach { $0.removeFromParentNode() }
         guard let f, let style else { return }
@@ -517,6 +529,10 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
     // MARK: - 每帧
 
     @objc private func tick() {
+        // 隔了很久才来一帧 = 刚从别的 app 回来,那段时间不算闲着
+        let frameAt = CACurrentMediaTime()
+        if frameAt - lastTick > 1 { lastTouch = Date() }
+        lastTick = frameAt
         var moved = false
         if let f = flight {
             let t = min(1, (CACurrentMediaTime() - f.start) / f.dur)
@@ -530,7 +546,7 @@ final class GlobeController: NSObject, UIGestureRecognizerDelegate {
             centerLat = min(85, max(-85, centerLat + velocity.y))
             velocity *= 0.94
             moved = true
-        } else if focus == nil, Date().timeIntervalSince(lastTouch) > 8 {
+        } else if focus == nil, !covered, Date().timeIntervalSince(lastTouch) > 8 {
             // 8 秒没碰屏幕、也没选城: 慢慢自转
             centerLng += 0.05
             moved = true

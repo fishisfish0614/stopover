@@ -30,6 +30,7 @@ struct StopoverNote: Identifiable, Equatable {
     let tripId: Int
     let text: String
     let updated: Double
+    var created: Double = 0
 }
 
 struct StopoverPhoto: Identifiable, Equatable {
@@ -37,6 +38,7 @@ struct StopoverPhoto: Identifiable, Equatable {
     let tripId: Int
     let caption: String
     let tag: String?
+    var taken: Double? = nil   // 拍摄时间,活页夹按它分天排
 }
 
 struct StopoverComment: Identifiable, Equatable {
@@ -138,11 +140,13 @@ final class StopoverStore: ObservableObject {
         notes = (j["notes"] as? [[String: Any]] ?? []).compactMap { n in
             guard let id = n["id"] as? Int, let t = n["trip_id"] as? Int else { return nil }
             return StopoverNote(id: id, tripId: t, text: n["text"] as? String ?? "",
-                                updated: (n["updated"] as? Double) ?? (n["created"] as? Double) ?? 0)
+                                updated: (n["updated"] as? Double) ?? (n["created"] as? Double) ?? 0,
+                                created: n["created"] as? Double ?? 0)
         }
         photos = (j["photos"] as? [[String: Any]] ?? []).compactMap { p in
             guard let id = p["id"] as? Int, let t = p["trip_id"] as? Int else { return nil }
-            return StopoverPhoto(id: id, tripId: t, caption: p["caption"] as? String ?? "", tag: p["tag"] as? String)
+            return StopoverPhoto(id: id, tripId: t, caption: p["caption"] as? String ?? "", tag: p["tag"] as? String,
+                                 taken: p["taken"] as? Double)
         }
         comments = (j["comments"] as? [[String: Any]] ?? []).compactMap { c in
             guard let id = c["id"] as? Int, let t = c["target"] as? String else { return nil }
@@ -371,7 +375,8 @@ final class StopoverStore: ObservableObject {
     var photoTags: [String] { config.tags }
 
     /// Multipart upload of the original file (HEIC is fine — the server reads it)
-    func upload(trip: Int, data: Data, filename: String, mime: String) async -> Bool {
+    /// Returns (ok, the photo's id); the id is what a caption is written to afterwards
+    func upload(trip: Int, data: Data, filename: String, mime: String) async -> (Bool, Int?) {
         let b = "----stopover\(UUID().uuidString)"
         var body = Data()
         body.append("--\(b)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(filename)\"\r\nContent-Type: \(mime)\r\n\r\n".data(using: .utf8)!)
@@ -381,8 +386,10 @@ final class StopoverStore: ObservableObject {
         req.httpMethod = "POST"
         req.timeoutInterval = 120
         req.setValue("multipart/form-data; boundary=\(b)", forHTTPHeaderField: "Content-Type")
-        guard let (_, r) = try? await URLSession.shared.upload(for: req, from: body) else { return false }
-        return (r as? HTTPURLResponse)?.statusCode ?? 0 < 300
+        guard let (d, r) = try? await URLSession.shared.upload(for: req, from: body),
+              (r as? HTTPURLResponse)?.statusCode ?? 0 < 300 else { return (false, nil) }
+        let j = (try? JSONSerialization.jsonObject(with: d) as? [String: Any]) ?? [:]
+        return (true, (j["photo"] as? [String: Any])?["id"] as? Int)
     }
 
     func updatePhoto(_ id: Int, _ fields: [String: Any]) async -> Bool {

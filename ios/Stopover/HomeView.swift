@@ -71,6 +71,7 @@ struct HomeView: View {
         ZStack {
             StopoverGlobe(style: style, marks: marks, places: places,
                           focus: selected.map { SIMD2($0.lat, $0.lng) }, kick: kick,
+                          covered: searching || inbox,
                           onTap: pick)
                 .ignoresSafeArea()
 
