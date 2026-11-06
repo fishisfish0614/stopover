@@ -396,7 +396,6 @@ struct StopoverBinderPage: View {
     @State private var openToken = 0
     @State private var ticketH: CGFloat = 0
     @State private var entryFrames: [String: CGRect] = [:]
-    @State private var folderRect: CGRect = .zero
     @State private var focusDone = false
     // 内页里的对话: 键盘盖住输入框时把那组滚上来
     @State private var keyboardH: CGFloat = 0
@@ -484,21 +483,31 @@ struct StopoverBinderPage: View {
 
     // MARK: 文件夹
 
-    /// 从往来跳来的: 等版面和图就绪,让那一页从文件夹里抽出来;关掉正好回到文件夹
+    /// 从往来跳来的: 先把文件夹打开,再从竖条上抽出那一页,和手动抽走同一条路。
+    /// 不能在合着的文件夹上直接抽: 真机上之后第三方键盘打不了字,杀掉 App 才恢复
     private func openFocusLeaf() async {
         guard !focusDone, let id = focusLeaf else { return }
         focusDone = true
-        guard let leaf = leaves.first(where: { $0.id == id }) else { return }
-        if case .photo(let p, _) = leaf { images.request(p.id, big: false) }
-        for _ in 0..<15 {
-            var ready = ticketH > 0 && folderRect != .zero
-            if case .photo(let p, _) = leaf, images.images[p.id] == nil { ready = false }
-            if ready { break }
-            try? await Task.sleep(for: .milliseconds(100))
+        guard leaves.contains(where: { $0.id == id }) else { return }
+        for _ in 0..<20 where ticketH == 0 { try? await Task.sleep(for: .milliseconds(50)) }
+        var tx = Transaction()
+        tx.disablesAnimations = true
+        withTransaction(tx) { opened = true; showReal = true }
+        scroll.x = 0
+        for _ in 0..<20 where binderFrame == .zero { try? await Task.sleep(for: .milliseconds(50)) }
+        try? await Task.sleep(for: .milliseconds(350))
+        let ls = leaves
+        guard active == nil, let i = ls.firstIndex(where: { $0.id == id }), binderFrame != .zero else { return }
+        if case .photo(let p, _) = ls[i] { images.request(p.id, big: false) }
+        let ws = widths(ls, total: binderFrame.width)
+        begin(i, ls: ls, ws: ws, seq: tabSequence(ls), H: binderFrame.height - BinderK.topGap)
+        // 滑到屏幕外的那条: 从屏幕边上长出来,别从看不见的地方飞进来
+        if let a = active, a.source.minX > binderFrame.width - a.source.width {
+            var s = a.source
+            s.origin.x = binderFrame.width - s.width
+            active = Active(leaf: a.leaf, source: s, tone: a.tone, tabY: a.tabY)
         }
-        try? await Task.sleep(for: .milliseconds(250))
-        guard active == nil else { return }
-        openEntry(leaf, from: folderRect)
+        open()
     }
 
     private struct FolderLayout {
@@ -602,7 +611,6 @@ struct StopoverBinderPage: View {
         }
         .contentShape(shape)
         .onTapGesture { tapFolder(f) }
-        .onGeometryChange(for: CGRect.self) { $0.frame(in: .named("binderPage")) } action: { if !opened { folderRect = $0 } }
         .rotation3DEffect(.degrees(opened ? -112 : 0), axis: (1, 0, 0), anchor: .bottom, perspective: 0.5)
         .animation(opened ? .easeIn(duration: 0.28) : .spring(response: 0.36, dampingFraction: 0.82).delay(0.2), value: opened)
         .opacity(opened ? 0 : 1)
