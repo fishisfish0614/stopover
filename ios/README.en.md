@@ -20,7 +20,7 @@ A native SwiftUI client for `server/stopover.py` in this same repository.
 ## What's in it
 
 The globe (three styles — Blue Marble (蓝石), Night Flight (夜航) and Old Map (旧图) — with red dots for places you've been, red arcs and shooting stars from where you set off, stars for places you want to go, and city names as you zoom in);
-city pages (history timeline / culture / sights carousel / food); a boarding pass for every visit (tear off the stub to open the trip (这一次));
+city pages (history timeline / culture / sights carousel / food); a boarding pass for every visit (tear off the stub to open the trip (这一次): a folder, binder strips and poster pages);
 editable dates and remarks / origin / next stop, notes, photos, wishlist stars, search (by country / where you've been / where you want to go; places it can't find can be added from Wikidata),
 the dice, and writing up a page on the spot for cities without one (the server needs `DEEPSEEK_API_KEY`).
 

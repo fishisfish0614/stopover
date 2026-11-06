@@ -2,7 +2,7 @@
 
 **中文** · [English](README.en.md)
 
-![经停 Stopover：地球总览、京都长卷、登机牌、这一次](docs/img/hero.png)
+![经停 Stopover（iOS 版）：地球、文件夹、活页竖条、海报页](docs/img/hero.png)
 
 **两个人的旅行地球：去过的城市是地球上的红点，每一次经停是一张可以撕开存根的登机牌。**
 
@@ -20,10 +20,12 @@
 - **地图上的痕迹**：来过的城是红点，从出发地拉出一道光带飞过去，有终点的再连回去；想去的是星星——金色是你的、蓝色是 TA 的、两个人都想去的是一对。时钟和昼夜按配置里的时区显示。
 - **登机牌**：每来一次是一张票——出发地 → 城市 → 终点、日期、里程、一句备注。轻点抬起，拖着存根撕开（或再点一下让它自己撕），进入「这一次」。
 
-- **这一次**：随记（长短都行）、照片（自动去重、读拍摄时间、配文和标签）、改日期 / 出发地 / 终点。
+- **这一次**：随记（长短都行）、照片（自动去重、读拍摄时间、配文和标签）、改日期 / 出发地 / 终点。iOS 版把它做成了一只[活页文件夹](#ios-版的这一次活页文件夹)。
 - **城市长卷**：852 座城有中文长卷——历史时间轴、文化、景点轮播、美食菜单，配维基共享资源的图，页面上带来源链接。另外 769 座点开有「整理」按钮，现场从 Wikipedia / Wikivoyage 写一页（要 DeepSeek key）；地图上没有的地方可以从 Wikidata 搜出来加上。
 - **搜索三栏**：按国家找 / 去过的（按国家分组）/ 想去的（都想去、我想去、TA 想去）。没主意时摇骰子：所有城市、没去过的、或者想去的星星里随机挑一座。
 - 网页可以「添加到主屏幕」当 App 用；也有 SwiftUI 原生版。
+
+![三种地球：蓝石、夜航、旧图](docs/img/globes.png)
 
 <p align="center">
   <img src="docs/img/night.png" width="240" alt="夜航风格：城市灯光">
@@ -35,6 +37,34 @@
 
 <p align="center"><img src="docs/img/tear.gif" width="280" alt="抬起登机牌，拖着存根撕开，进入「这一次」"></p>
 <p align="center"><sub>就是这样：轻点抬起登机牌，拖着存根往右下撕开，「这一次」就在后面。</sub></p>
+
+### iOS 版的「这一次」：活页文件夹
+
+> 目前只有 iOS 版是这个样子，网页版还是原来的网格，之后会跟上。
+
+每一次经停是一只磨砂玻璃文件夹，这一趟的照片从文件夹口探出来，玻璃里透着它们的颜色。
+
+<p align="center">
+  <img src="docs/img/trip-folder-open.gif" width="240" alt="点开文件夹，照片飞出来排成活页竖条">
+  &nbsp;
+  <img src="docs/img/trip-strips.png" width="240" alt="活页竖条：封面、分天、照片和随记">
+</p>
+
+- **合上时**：登机牌、文件夹和「加一页 / GATE / TA 说」都在一屏里，想递东西或加一页不用翻照片。
+- **点开时**：前盖翻下，纸一张接一张飞出来，变成占满整屏的竖条。右上角「合上」再收回去。
+- **活页竖条**：左右滑。按拍摄时间排，跨天会分出 DAY 1、DAY 2，随记是竖排的字纸。窄条会对准照片里的人脸。
+- **抽出来看**：按住一条往上拖，或者点一下，它就展开成一整页；「插回去」、× 或下拉都能收回。
+
+<p align="center">
+  <img src="docs/img/trip-poster.png" width="240" alt="海报页：短配文做大标题，底色取自鸟居的红棕">
+  &nbsp;
+  <img src="docs/img/trip-poster-caption.png" width="240" alt="海报页：中等长度的配文，底色取自金阁的金棕">
+</p>
+
+- **海报页**：每张照片一页，底色从这张照片里取，照片底部慢慢融进去，城市名跨在交界上。配文按长短排：一句短话做大标题，长一点是正文，很长的首字放大。下面印着编号、第几天、时间和经纬度。
+- **上传时写配文**：一次选好几张，每张可以写自己的配文。写日期也不用记格式，`2019.8.3`、`2019/8/3`、`2019年8月3日`、`20190803` 都认，只记得年或月也行。
+
+<p align="center"><img src="docs/img/trip-upload.png" width="240" alt="上传照片时每张写一句配文"></p>
 
 ### 两个人用（可整块关掉）
 
@@ -245,5 +275,5 @@ location / {
 
 - 代码、设计、示例数据：**CC BY-NC-SA 4.0**（署名—非商业性使用—相同方式共享），见 `LICENSE`。可以自己用、改、分享，**不可商用**；改过的版本要用同样的许可。这是一个源码公开的项目，不算 OSI 意义上的开源。
 - 城市资料 `web/data/`：**CC BY-SA 4.0**（源自 Wikipedia / Wikivoyage），见 `web/data/LICENSE`。图片不在仓库里，链到维基共享资源，各自遵循原许可。
-- `docs/img/` 截图里「这一次」的两张京都照片来自 Wikimedia Commons：*Torii path with lantern at Fushimi Inari Taisha Shrine* by Basile Morin（CC BY-SA 4.0）、*Kinkaku-ji14* by dconvertini（CC BY-SA 2.0）；城市长卷里的图同样来自 Commons，各自遵循原许可。
+- `docs/img/` 截图里「这一次」的京都照片来自 Wikimedia Commons：*Torii path with lantern at Fushimi Inari Taisha Shrine* by Basile Morin（CC BY-SA 4.0）、*Kinkaku-ji14* by dconvertini（CC BY-SA 2.0）、*Kiyomizu-dera, Kyoto, November 2016 -02* by Martin Falbisoner（CC BY-SA 4.0）、*Kyoto Ginkaku-ji Ginkaku 01* by Zairon（CC BY-SA 4.0）、*L'entrée du palais Ninomaru (Château de Nijo, Kyoto)* by Jean-Pierre Dalbéra（CC BY 2.0）；城市长卷里的图同样来自 Commons，各自遵循原许可。
 - 第三方声明见 `THIRD_PARTY.md`（boarding-pass 交互参考 jal-co/boarding-pass，MIT）。

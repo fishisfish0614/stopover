@@ -2,7 +2,7 @@
 
 [中文](README.md) · **English**
 
-![Stopover: the globe, the Kyoto page, a boarding pass and a trip](docs/img/hero.png)
+![Stopover on iOS: the globe, the folder, binder strips and a poster page](docs/img/hero.png)
 
 **A travel globe for two: the places you've been glow red on the globe, and every stopover is a boarding pass whose stub you tear off to open it.**
 
@@ -20,10 +20,12 @@ Mark the cities you've been to on a globe. Every stopover is a boarding pass —
 - **Traces on the map**: red dots for places you've been, with a glowing arc flying in from where you set off and on to where you went next if there is one. Places you want to go are stars — gold for you, blue for your partner, a pair when you both want to go. Clocks and day/night follow the time zones in your config.
 - **Boarding passes**: one per visit — origin → city → next stop, dates, distance and a remark. Tap to lift it, drag the stub to tear it off (or tap again and it tears itself), and you're in the trip.
 
-- **The trip page** (这一次): notes of any length, photos (deduplicated, EXIF capture date, captions and tags), and editable dates, origin and next stop.
+- **The trip page** (这一次): notes of any length, photos (deduplicated, EXIF capture date, captions and tags), and editable dates, origin and next stop. On iOS it's a [binder folder](#the-trip-page-on-ios-a-binder-folder).
 - **City pages**: 852 cities have a long-form Chinese page — a history timeline, culture, a sights carousel and a food menu, illustrated with Wikimedia Commons photos and with sources linked on the page. The other 769 have a "Write it up" (整理) button that drafts a page on the spot from Wikipedia / Wikivoyage (needs a DeepSeek key); places not on the map can be found on Wikidata and added.
 - **Search in three tabs**: by country / where you've been (grouped by country) / where you want to go (both of you, just you, just your partner). Out of ideas? Roll the dice: it picks a random city from all of them, the unvisited ones, or your stars.
 - The web app can be added to your home screen and used like an app; there's also a native SwiftUI app.
+
+![Three globes: Blue Marble, Night Flight and Old Map](docs/img/globes.png)
 
 <p align="center">
   <img src="docs/img/night.png" width="240" alt="Night Flight style: city lights">
@@ -35,6 +37,34 @@ Mark the cities you've been to on a globe. Every stopover is a boarding pass —
 
 <p align="center"><img src="docs/img/tear.gif" width="280" alt="Lifting a boarding pass and tearing off the stub to open the trip"></p>
 <p align="center"><sub>Like this: tap to lift the pass, drag the stub down and away, and the trip is right behind it.</sub></p>
+
+### The trip page on iOS: a binder folder
+
+> Only the iOS app looks like this for now. The web app still has the original grid and will catch up later.
+
+Each stopover is a frosted-glass folder. The trip's photos peek out of the top, and their colors glow through the glass.
+
+<p align="center">
+  <img src="docs/img/trip-folder-open.gif" width="240" alt="Opening the folder: photos fly out into binder strips">
+  &nbsp;
+  <img src="docs/img/trip-strips.png" width="240" alt="Binder strips: cover, days, photos and a note">
+</p>
+
+- **Closed**: the boarding pass, the folder and the add / gate / partner entries all fit on one screen, so you can hand something over or add a page without going through the photos.
+- **Open**: the front flap drops and the pages fly out one by one into full-height strips. "合上" (close) at the top right puts them back.
+- **Binder strips**: swipe sideways. Pages follow capture time, multi-day trips split into DAY 1, DAY 2, and notes are vertical slips of paper. Narrow strips center on faces in the photo.
+- **Pull one out**: drag a strip upward or tap it, and it opens into a full page. "插回去" (put back), × or pulling down returns it.
+
+<p align="center">
+  <img src="docs/img/trip-poster.png" width="240" alt="Poster page: a short caption as the headline, tinted from the red-brown torii">
+  &nbsp;
+  <img src="docs/img/trip-poster-caption.png" width="240" alt="Poster page: a medium caption, tinted from the gold of Kinkaku-ji">
+</p>
+
+- **Poster pages**: every photo gets a page tinted from its own colors. The photo fades into that color and the city name sits across the seam. Captions are set by length: a short line is a headline, a longer one is body text, and a very long one gets a drop cap. The number, day, time and coordinates are printed below.
+- **Captions while uploading**: pick several photos and write a caption for each. Dates are forgiving too: `2019.8.3`, `2019/8/3`, `2019年8月3日` and `20190803` all work, and so does just a year or month.
+
+<p align="center"><img src="docs/img/trip-upload.png" width="240" alt="Writing a caption for each photo while uploading"></p>
 
 ### Together (optional — switch it all off)
 
@@ -245,5 +275,5 @@ Adding cities: if search can't find a place, look it up on Wikidata right below 
 
 - Code, design and sample data: **CC BY-NC-SA 4.0** (Attribution–NonCommercial–ShareAlike), see `LICENSE`. Free to use, adapt and share, **not for commercial use**; adapted versions must use the same license. This is a source-available project, not OSI open source.
 - City texts in `web/data/`: **CC BY-SA 4.0** (derived from Wikipedia / Wikivoyage), see `web/data/LICENSE`. Images are not in the repo; they're hotlinked from Wikimedia Commons under their own licenses.
-- The two Kyoto photos in the trip screenshot in `docs/img/` are from Wikimedia Commons: *Torii path with lantern at Fushimi Inari Taisha Shrine* by Basile Morin (CC BY-SA 4.0) and *Kinkaku-ji14* by dconvertini (CC BY-SA 2.0); images in the city pages likewise come from Commons under their own licenses.
+- The Kyoto photos in the trip screenshots in `docs/img/` are from Wikimedia Commons: *Torii path with lantern at Fushimi Inari Taisha Shrine* by Basile Morin (CC BY-SA 4.0), *Kinkaku-ji14* by dconvertini (CC BY-SA 2.0), *Kiyomizu-dera, Kyoto, November 2016 -02* by Martin Falbisoner (CC BY-SA 4.0), *Kyoto Ginkaku-ji Ginkaku 01* by Zairon (CC BY-SA 4.0) and *L'entrée du palais Ninomaru (Château de Nijo, Kyoto)* by Jean-Pierre Dalbéra (CC BY 2.0); images in the city pages likewise come from Commons under their own licenses.
 - Third-party notices are in `THIRD_PARTY.md` (the boarding-pass interaction is based on jal-co/boarding-pass, MIT).
