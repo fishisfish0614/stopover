@@ -40,7 +40,7 @@ Mark the cities you've been to on a globe. Every stopover is a boarding pass —
 
 ### The trip page: a binder folder
 
-Each stopover is a frosted-glass folder. The trip's photos peek out of the top, and their colors glow through the glass.
+Each stopover is a frosted-glass folder. The trip's photos peek out of the top, and their colors glow through the glass. The web and iOS versions look almost the same: the screenshots below are from iOS, except the last row, which is the web app.
 
 <p align="center">
   <img src="docs/img/trip-folder-open.gif" width="240" alt="Opening the folder: photos fly out into binder strips">
@@ -64,6 +64,15 @@ Each stopover is a frosted-glass folder. The trip's photos peek out of the top, 
 - **Captions while uploading**: pick several photos and write a caption for each. Dates are forgiving too: `2019.8.3`, `2019/8/3`, `2019年8月3日` and `20190803` all work, and so does just a year or month.
 
 <p align="center"><img src="docs/img/trip-upload.png" width="240" alt="Writing a caption for each photo while uploading"></p>
+
+<p align="center">
+  <img src="docs/img/web-folder.png" width="200" alt="Web: the closed folder">
+  &nbsp;
+  <img src="docs/img/web-strips.png" width="200" alt="Web: binder strips">
+  &nbsp;
+  <img src="docs/img/web-poster.png" width="200" alt="Web: a poster page with its conversation">
+</p>
+<p align="center"><sub>The web app (in a phone browser, or added to the home screen): the closed folder, binder strips and a poster page. Same measurements as iOS.</sub></p>
 
 ### Together (optional — switch it all off)
 

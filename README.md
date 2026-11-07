@@ -40,7 +40,7 @@
 
 ### 「这一次」：活页文件夹
 
-每一次经停是一只磨砂玻璃文件夹，这一趟的照片从文件夹口探出来，玻璃里透着它们的颜色。
+每一次经停是一只磨砂玻璃文件夹，这一趟的照片从文件夹口探出来，玻璃里透着它们的颜色。网页和 iOS 长得几乎一样：下面先是 iOS 的截图，最后一排是网页版。
 
 <p align="center">
   <img src="docs/img/trip-folder-open.gif" width="240" alt="点开文件夹，照片飞出来排成活页竖条">
@@ -64,6 +64,15 @@
 - **上传时写配文**：一次选好几张，每张可以写自己的配文。写日期也不用记格式，`2019.8.3`、`2019/8/3`、`2019年8月3日`、`20190803` 都认，只记得年或月也行。
 
 <p align="center"><img src="docs/img/trip-upload.png" width="240" alt="上传照片时每张写一句配文"></p>
+
+<p align="center">
+  <img src="docs/img/web-folder.png" width="200" alt="网页版：合上的文件夹">
+  &nbsp;
+  <img src="docs/img/web-strips.png" width="200" alt="网页版：活页竖条">
+  &nbsp;
+  <img src="docs/img/web-poster.png" width="200" alt="网页版：海报页和下面的对话">
+</p>
+<p align="center"><sub>网页版（手机浏览器，也可以添加到主屏幕）：合上的文件夹、活页竖条、海报页。和 iOS 用的是同一套数值。</sub></p>
 
 ### 两个人用（可整块关掉）
 

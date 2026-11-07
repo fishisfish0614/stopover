@@ -79,7 +79,7 @@ function bdMeasure(text){ let s=$("#bdmeasure"); if(!s){ s=document.createElemen
 let bdM=null;
 function bdMetrics(){ if(bdM) return bdM; const c=document.createElement("canvas").getContext("2d"); c.font='900 100px "Archivo"'; const m=c.measureText("H");
   return bdM={cap:(m.actualBoundingBoxAscent||70)/100, asc:(m.fontBoundingBoxAscent||94)/100, desc:(m.fontBoundingBoxDescent||22)/100}; }
-const bdFont = document.fonts ? document.fonts.load('900 100px "Archivo"').catch(()=>{}) : Promise.resolve();
+document.fonts?.load('900 100px "Archivo"').catch(()=>{});   // 先把超宽黑体拉下来，量字才准
 
 const bdClock = ts => { if(!ts) return ""; const d=new Date(ts*1000); return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
 const bdImg = (pid,w) => `api/photo/img/${pid}?w=${w}`;
@@ -364,8 +364,8 @@ function bdPage(ctx){
     let inner="";
     if(leaf.kind==="add") inner=S.addNote?`<form class="nf bp-nf" data-new="1"><label class="vh-only" for="bpnew">写一段随记</label><textarea id="bpnew" name="text" rows="8" maxlength="5000" placeholder="这一趟，想记下点什么…长短都行"></textarea>
         <div class="ckacts"><button class="pill solid">记下</button><button type="button" class="lk" data-bp="addx">先不写</button></div></form>`
-      : `<button class="bp-add" data-bp="note"><b>写一段</b><span>夹一张字纸</span></button><button class="bp-add" data-bp="photo"><b>加照片</b><span>从手机 / 电脑选</span></button>`;
-    else if(leaf.kind==="gate") inner=gateHTML(t, S, true);
+      : `<button class="bp-add" data-bp="note"><b>写一段</b><span>夹一张字纸</span></button><button class="bp-add" data-bp="photo"><b>加照片</b><span>从手机 / 电脑选</span></button>`+(SH()?"":bdOffHTML(t));
+    else if(leaf.kind==="gate") inner=gateHTML(t, S, true)+bdOffHTML(t);
     else inner=cmtBlock("trip:"+t.id)||`<p class="hint">这张票上${esc(PT())}还没说什么。</p>`;
     body=`<div class="bp-plain bp-t" style="padding-top:${ins.top+64}px"><p class="bp-kick">${kick}</p><h3 class="bp-h">${title}</h3>${inner}</div>${foot()}`;
   }
@@ -373,6 +373,10 @@ function bdPage(ctx){
   const sc=a.sh.querySelector(".bp-sc"); sc.scrollTop=old;
   bdWirePage(ctx, sc);
 }
+
+// 「删掉这一次」放在 GATE 页底下；features.share=false 没有 GATE，就放在「加一页」底下（网格里还是在最底下）
+function bdOffHTML(t){ const label=tripsOf(t.city).length>1?"删掉这一次":"取消来过";
+  return `<div class="tpdel bp-off"><button class="lk warn" data-bp-off data-label="${label}">${label}</button></div>`; }
 
 // 长段：首字放大，字绕着走
 function bdDrop(text, cls){ const s=[...String(text||"").trim()]; if(!s.length) return "";
@@ -434,6 +438,10 @@ function bdWirePage(ctx, sc){
   // 票的评论 / GATE 页
   if(leaf.kind==="talk") wireCmts(root, ()=>{ if(ctx.active===a) bdPage(ctx); });
   if(leaf.kind==="gate") wireGate(root, t, S, ()=>{ if(ctx.active===a) bdPage(ctx); });
+  // 删掉这一次 / 取消来过：点两下才算（4 秒内），删完整页关掉
+  const off=root.querySelector("[data-bp-off]"); if(off) off.onclick=()=>{
+    if(!off._c){ off._c=1; off.textContent=photosOf(t.id).length||notesOf(t.id).length?"随记和照片也会一起取下，再点一次确认":"再点一次确认"; setTimeout(()=>{ if(off.isConnected){ off._c=0; off.textContent=off.dataset.label; } },4000); return; }
+    const el=ctx.el; el.hidden=true; el.innerHTML=""; el._bd=null; delete tp[t.id]; uncheck(t.city, t.id); };
 }
 
 // 手机上活页夹整屏盖住地球：地球先停画，开合和抽页的动画才跟得上；关掉或换回网格再接着转
