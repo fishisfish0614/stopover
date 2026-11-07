@@ -20,7 +20,7 @@ Mark the cities you've been to on a globe. Every stopover is a boarding pass —
 - **Traces on the map**: red dots for places you've been, with a glowing arc flying in from where you set off and on to where you went next if there is one. Places you want to go are stars — gold for you, blue for your partner, a pair when you both want to go. Clocks and day/night follow the time zones in your config.
 - **Boarding passes**: one per visit — origin → city → next stop, dates, distance and a remark. Tap to lift it, drag the stub to tear it off (or tap again and it tears itself), and you're in the trip.
 
-- **The trip page** (这一次): notes of any length, photos (deduplicated, EXIF capture date, captions and tags), and editable dates, origin and next stop. On iOS it's a [binder folder](#the-trip-page-on-ios-a-binder-folder).
+- **The trip page** (这一次): notes of any length, photos (deduplicated, EXIF capture date, captions and tags), and editable dates, origin and next stop. On the web and iOS it's a [binder folder](#the-trip-page-a-binder-folder).
 - **City pages**: 852 cities have a long-form Chinese page — a history timeline, culture, a sights carousel and a food menu, illustrated with Wikimedia Commons photos and with sources linked on the page. The other 769 have a "Write it up" (整理) button that drafts a page on the spot from Wikipedia / Wikivoyage (needs a DeepSeek key); places not on the map can be found on Wikidata and added.
 - **Search in three tabs**: by country / where you've been (grouped by country) / where you want to go (both of you, just you, just your partner). Out of ideas? Roll the dice: it picks a random city from all of them, the unvisited ones, or your stars.
 - The web app can be added to your home screen and used like an app; there's also a native SwiftUI app.
@@ -38,9 +38,7 @@ Mark the cities you've been to on a globe. Every stopover is a boarding pass —
 <p align="center"><img src="docs/img/tear.gif" width="280" alt="Lifting a boarding pass and tearing off the stub to open the trip"></p>
 <p align="center"><sub>Like this: tap to lift the pass, drag the stub down and away, and the trip is right behind it.</sub></p>
 
-### The trip page on iOS: a binder folder
-
-> Only the iOS app looks like this for now. The web app still has the original grid and will catch up later.
+### The trip page: a binder folder
 
 Each stopover is a frosted-glass folder. The trip's photos peek out of the top, and their colors glow through the glass.
 
@@ -52,7 +50,7 @@ Each stopover is a frosted-glass folder. The trip's photos peek out of the top, 
 
 - **Closed**: the boarding pass, the folder and the add / gate / partner entries all fit on one screen, so you can hand something over or add a page without going through the photos.
 - **Open**: the front flap drops and the pages fly out one by one into full-height strips. "合上" (close) at the top right puts them back.
-- **Binder strips**: swipe sideways. Pages follow capture time, multi-day trips split into DAY 1, DAY 2, and notes are vertical slips of paper. Narrow strips center on faces in the photo.
+- **Binder strips**: swipe sideways. Pages follow capture time, multi-day trips split into DAY 1, DAY 2, and notes are vertical slips of paper. On iOS, narrow strips center on faces in the photo (the web centers them). The icon at the top right of the pass switches back to a grid.
 - **Pull one out**: drag a strip upward or tap it, and it opens into a full page. "插回去" (put back), × or pulling down returns it.
 
 <p align="center">
@@ -74,7 +72,7 @@ Set `features.share=false` and everything below disappears from the web page, le
 - **Hand it over (递给TA)**: a city, a sight, a dish, a whole ticket, or a few hand-picked notes and photos from a trip, with an optional line of your own.
 - **Batched and undoable**: everything you hand over and every reply waits as *pending* (待送达) until two quiet minutes pass (`inject.merge_seconds`), then goes out as one message; take it back any time before that.
 - **Threads**: "Our conversation" (我们的对话) at the bottom of each city card — one thread per hand-over, plus a "just talking" (平时说的) thread for comments on the city, a trip, a photo or a note. Reply to any message individually.
-- **Inbox**: what your partner hands you lands under "Handed to you" (递来的) in the top bar, with a red dot for anything unread.
+- **Inbox** (往来): everything either of you handed over, in the top bar — all / mine / your partner's, with their new wishes folded in. A red dot marks anything from your partner you haven't opened.
 - **AI companions**: your partner reads, comments, stars (blue) and hands things over via MCP or the CLI, and the tool output is kept short to save tokens (see below and [`AGENT.md`](AGENT.md)).
 - **Inject into your main chat**: optionally POST what you hand over to your chat app (`inject.url`), with signed photo links and chat cards you can embed in an iframe.
 - **Push**: when your partner comments, hands you something or stars a place, your devices get a notification — Web Push for the web app, APNs for native iOS.

@@ -22,7 +22,7 @@
 - **路径都是相对的。** 网页用 `fetch("api/state")`、`data/cities.json` 这类相对地址，`sw.js` 用 `registration.scope` 拼链接；iOS 把用户填的服务器地址当 base，再拼 `api/...`、`data/...`。所以整套东西可以挂在子路径下（如 `https://example.com/stopover/`）。
 - **JSON 进出。** 请求体是 JSON（照片上传除外，是 multipart）；所有写接口的请求体都可省略，缺省为 `{}`。成功的写操作返回 `{"ok": true, ...}`。
 - **时间戳**：`created` `updated` `sent` `read_at` `taken` `ts` 都是 **unix 秒，浮点数**（Python `time.time()`）。
-- **日期**：`date_start` / `date_end` 是字符串，只接受 `YYYY`、`YYYY-MM`、`YYYY-MM-DD` 三种（正则 `\d{4}(-\d{2}(-\d{2})?)?`，不校验月日范围）。
+- **日期**：`date_start` / `date_end` 是字符串，存成 `YYYY`、`YYYY-MM`、`YYYY-MM-DD` 三种之一。写入时宽松：`2019.8.3`、`2019-8-3`、`2019/8/3`、`2019年8月3日`、`20190803` 都会翻成 `2019-08-03`；只写年或年月也行；月日不存在（如 `2026.2.30`）回 400。
 - **错误格式**：`{"detail": "给人看的中文"}`，配 4xx/5xx 状态码。网页和 iOS 都直接把 `detail` 当 toast 显示（iOS 前面加「没存上：」）。路径参数类型不对（如 `/api/trip/abc`）由框架回 422，`detail` 是数组——客户端只会显示状态码，重新实现时可以照样回 422 或改成 404。
 - **"软失败"**：推送相关几个接口在功能没开时回 **200** + `{"ok": false, "reason": "..."}`，不是 4xx（见 §4.9）。
 - **配置每次请求都重新读**（`server/config.json`，缺失时读 `config.example.json`），改完不用重启。
@@ -219,7 +219,7 @@ SQLite 表结构见 `init()`。下面只列客户端能看到的字段。
 
 - 体：任选 `origin`、`dest`（城市 id，空 / `null` 清空）、`date_start`、`date_end`、`remark`（空串清空）
 - 返回：`{"ok": true, "checkin": {checkin}}`
-- 错误：404 `没有这一次`；404 `没有这座城：…`；400 `日期写成 2019 / 2019-08 / 2019-08-03`（整次修改回滚）
+- 错误：404 `没有这一次`；404 `没有这座城：…`；400 `这个日期我看不懂，写成 2019.8.3 这样试试`（整次修改回滚）
 
 **`DELETE /api/trip/{tid}`** · me
 

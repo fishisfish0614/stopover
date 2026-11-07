@@ -192,6 +192,20 @@ def checkin(city: str, body: dict = Body(default={})):
         log(c, "checkin", city, {"id": tid, "origin": origin})
         return {"ok": True, "checkin": trip_row(c, tid)}
 
+def norm_date(v):
+    """2019 / 2019.8 / 2019.8.3 / 2019-8-3 / 2019/8/3 / 2019年8月3日 / 20190803 → 2019 / 2019-08 / 2019-08-03；看不懂（或月日不存在）回 None"""
+    v = v.strip()
+    if re.fullmatch(r"\d{8}", v): v = f"{v[:4]}-{v[4:6]}-{v[6:]}"
+    p = [x for x in re.split(r"[.。．/／\-－—–年月日\s]+", v) if x]
+    if not 1 <= len(p) <= 3 or len(p[0]) != 4 or not all(x.isdigit() for x in p): return None
+    n = [int(x) for x in p]
+    if len(n) >= 2 and not 1 <= n[1] <= 12: return None
+    if len(n) == 3:
+        import datetime
+        try: datetime.date(*n)
+        except ValueError: return None
+    return "-".join([f"{n[0]:04d}"] + [f"{x:02d}" for x in n[1:]])
+
 @app.put("/api/trip/{tid}")
 def edit_trip(tid: int, body: dict = Body(default={})):
     with _lock, db() as c:
@@ -200,8 +214,10 @@ def edit_trip(tid: int, body: dict = Body(default={})):
             if k in body: c.execute(f"UPDATE checkins SET {k}=? WHERE id=?", (norm_city(t["city"], body.get(k)), tid))
         for k in ("date_start", "date_end", "remark"):
             if k in body:
-                v = (body.get(k) or "").strip()[: 60 if k == "remark" else 10] or None
-                if v and k != "remark" and not re.fullmatch(r"\d{4}(-\d{2}(-\d{2})?)?", v): raise HTTPException(400, "日期写成 2019 / 2019-08 / 2019-08-03")
+                v = (body.get(k) or "").strip()[:60] or None
+                if v and k != "remark":
+                    v = norm_date(v)
+                    if not v: raise HTTPException(400, "这个日期我看不懂，写成 2019.8.3 这样试试")
                 c.execute(f"UPDATE checkins SET {k}=? WHERE id=?", (v, tid))
         c.execute("UPDATE checkins SET updated=? WHERE id=?", (time.time(), tid))
         log(c, "trip", t["city"], {"id": tid, **body})
