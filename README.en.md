@@ -2,7 +2,7 @@
 
 [中文](README.md) · **English**
 
-![Stopover on iOS: the globe, the folder, binder strips and a poster page](docs/img/hero.png)
+![Stopover on iOS: the globe, the Los Angeles city page, the boarding pass with its folder, and a poster page with a caption and a conversation](docs/img/hero.png)
 
 **A travel globe for two: the places you've been glow red on the globe, and every stopover is a boarding pass whose stub you tear off to open it.**
 
@@ -60,7 +60,7 @@ Each stopover is a frosted-glass folder. The trip's photos peek out of the top, 
 </p>
 
 - **Poster pages**: every photo gets a page tinted from its own colors. The photo fades into that color and the city name sits across the seam. Captions are set by length: a short line is a headline, a longer one is body text, and a very long one gets a drop cap. The number, day, time and coordinates are printed below.
-- **The conversation stays with the photo**: when you hand a photo over, the back-and-forth appears right under its poster page, where you can reply. Tap its slip in the inbox (往来) and the globe flies there and pulls that page out.
+- **The conversation stays with the photo**: when you hand a photo over, the back-and-forth appears right under its poster page, where you can reply. Tap its slip in the inbox (往来) and the trip opens, the folder spreads out and that page is pulled out; put it back to return to the strips, and close the trip to land on the city page.
 - **Captions while uploading**: pick several photos and write a caption for each. Dates are forgiving too: `2019.8.3`, `2019/8/3`, `2019年8月3日` and `20190803` all work, and so does just a year or month.
 
 <p align="center"><img src="docs/img/trip-upload.png" width="240" alt="Writing a caption for each photo while uploading"></p>
@@ -284,4 +284,5 @@ Adding cities: if search can't find a place, look it up on Wikidata right below 
 - Code, design and sample data: **CC BY-NC-SA 4.0** (Attribution–NonCommercial–ShareAlike), see `LICENSE`. Free to use, adapt and share, **not for commercial use**; adapted versions must use the same license. This is a source-available project, not OSI open source.
 - City texts in `web/data/`: **CC BY-SA 4.0** (derived from Wikipedia / Wikivoyage), see `web/data/LICENSE`. Images are not in the repo; they're hotlinked from Wikimedia Commons under their own licenses.
 - The Kyoto photos in the trip screenshots in `docs/img/` are from Wikimedia Commons: *Torii path with lantern at Fushimi Inari Taisha Shrine* by Basile Morin (CC BY-SA 4.0), *Kinkaku-ji14* by dconvertini (CC BY-SA 2.0), *Kiyomizu-dera, Kyoto, November 2016 -02* by Martin Falbisoner (CC BY-SA 4.0), *Kyoto Ginkaku-ji Ginkaku 01* by Zairon (CC BY-SA 4.0) and *L'entrée du palais Ninomaru (Château de Nijo, Kyoto)* by Jean-Pierre Dalbéra (CC BY 2.0); images in the city pages likewise come from Commons under their own licenses.
+- The Los Angeles photos in the hero image are from Wikimedia Commons: *Hollywood sign from Hobart* by Downtowngal (CC BY-SA 4.0), *Griffith Observatory and city lights at night* by Z3lvs (CC0), *Outdoor basketball in Venice (Unsplash)* by Nick Jio (CC0), *Venice Beach palm trees at sunset (Unsplash)* by Stuart Guest-Smith (CC0) and *Santa Monica pier, dusk* by Boqiang Liao (CC BY-SA 2.0); the captions and the conversation are made up.
 - Third-party notices are in `THIRD_PARTY.md` (the boarding-pass interaction is based on jal-co/boarding-pass, MIT).

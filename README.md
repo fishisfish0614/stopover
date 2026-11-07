@@ -2,7 +2,7 @@
 
 **中文** · [English](README.en.md)
 
-![经停 Stopover（iOS 版）：地球、文件夹、活页竖条、海报页](docs/img/hero.png)
+![经停 Stopover（iOS 版）：地球、洛杉矶城市长卷、登机牌和文件夹、带配文和对话的海报页](docs/img/hero.png)
 
 **两个人的旅行地球：去过的城市是地球上的红点，每一次经停是一张可以撕开存根的登机牌。**
 
@@ -60,7 +60,7 @@
 </p>
 
 - **海报页**：每张照片一页，底色从这张照片里取，照片底部慢慢融进去，城市名跨在交界上。配文按长短排：一句短话做大标题，长一点是正文，很长的首字放大。下面印着编号、第几天、时间和经纬度。
-- **对话跟着照片走**：递出去的照片，来回的对话直接显示在它的海报页下面，可以接着回。在「往来」里点这张照片的纸条，地球飞过去后直接抽出这一页。
+- **对话跟着照片走**：递出去的照片，来回的对话直接显示在它的海报页下面，可以接着回。在「往来」里点这张照片的纸条，「这一次」直接打开、文件夹展开后抽出这一页；插回去回到竖条，关掉之后才回到这座城的长卷。
 - **上传时写配文**：一次选好几张，每张可以写自己的配文。写日期也不用记格式，`2019.8.3`、`2019/8/3`、`2019年8月3日`、`20190803` 都认，只记得年或月也行。
 
 <p align="center"><img src="docs/img/trip-upload.png" width="240" alt="上传照片时每张写一句配文"></p>
@@ -284,4 +284,5 @@ location / {
 - 代码、设计、示例数据：**CC BY-NC-SA 4.0**（署名—非商业性使用—相同方式共享），见 `LICENSE`。可以自己用、改、分享，**不可商用**；改过的版本要用同样的许可。这是一个源码公开的项目，不算 OSI 意义上的开源。
 - 城市资料 `web/data/`：**CC BY-SA 4.0**（源自 Wikipedia / Wikivoyage），见 `web/data/LICENSE`。图片不在仓库里，链到维基共享资源，各自遵循原许可。
 - `docs/img/` 截图里「这一次」的京都照片来自 Wikimedia Commons：*Torii path with lantern at Fushimi Inari Taisha Shrine* by Basile Morin（CC BY-SA 4.0）、*Kinkaku-ji14* by dconvertini（CC BY-SA 2.0）、*Kiyomizu-dera, Kyoto, November 2016 -02* by Martin Falbisoner（CC BY-SA 4.0）、*Kyoto Ginkaku-ji Ginkaku 01* by Zairon（CC BY-SA 4.0）、*L'entrée du palais Ninomaru (Château de Nijo, Kyoto)* by Jean-Pierre Dalbéra（CC BY 2.0）；城市长卷里的图同样来自 Commons，各自遵循原许可。
+- 首图里洛杉矶那一次的照片来自 Wikimedia Commons：*Hollywood sign from Hobart* by Downtowngal（CC BY-SA 4.0）、*Griffith Observatory and city lights at night* by Z3lvs（CC0）、*Outdoor basketball in Venice (Unsplash)* by Nick Jio（CC0）、*Venice Beach palm trees at sunset (Unsplash)* by Stuart Guest-Smith（CC0）、*Santa Monica pier, dusk* by Boqiang Liao（CC BY-SA 2.0）；配文和对话都是虚构的。
 - 第三方声明见 `THIRD_PARTY.md`（boarding-pass 交互参考 jal-co/boarding-pass，MIT）。

@@ -26,7 +26,8 @@ the dice, and writing up a page on the spot for cities without one (the server n
 
 The two-person part (shown when `features.share` in the server's `/api/config` is true; turn it off and it's hidden entirely, leaving just your own log):
 "Hand it over" (递给TA) a city / a sight / a dish / a whole ticket / a few notes and photos (anything handed over within two minutes is merged into one message, and you can take it back until it's delivered);
-an inbox of what your partner hands you with unread dots; "Our conversation" (我们的对话) at the bottom of each city card (one thread per hand-over, plus "just talking" (平时说的)); and replies to your partner's comments.
+an inbox of what your partner hands you with unread dots; "Our conversation" (我们的对话) at the bottom of each city card (one thread per hand-over, plus "just talking" (平时说的)); and replies to your partner's comments. Poster and note pages show the conversation about that item underneath, where you can reply;
+tapping a photo, note or ticket slip in the inbox (往来) opens that trip and pulls the page straight out.
 
 Names (`me` / `partner`, e.g. 「我」「TA」), the default origin and home are all read from the server's `/api/config`; nothing is hard-coded in the app.
 The app always speaks as *me* and sends no auth header; the partner side (an AI companion, say) calls the same API with the key the server gave it.
