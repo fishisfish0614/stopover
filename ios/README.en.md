@@ -32,6 +32,20 @@ tapping a photo, note or ticket slip in the inbox (往来) opens that trip and p
 Names (`me` / `partner`, e.g. 「我」「TA」), the default origin and home are all read from the server's `/api/config`; nothing is hard-coded in the app.
 The app always speaks as *me* and sends no auth header; the partner side (an AI companion, say) calls the same API with the key the server gave it.
 
+## Chat cards (for your own chat app)
+
+The app itself has no chat page. Every hand-over and every message gets a card on the server (see "Chat cards" in the [root README](../README.en.md)),
+which a web page can simply iframe. If your chat app is SwiftUI too, copy `Stopover/ChatCard.swift` into it to draw the same card:
+
+- the webhook (`inject.url`) carries `cards: [{url, json}]`: decode `json` as `StopoverCard` and pass it to `StopoverChatCard(card:)`;
+- if you only kept the card url, use `StopoverRemoteCard(url:)`, which fetches `/api/share/{id}/card?k=…` and draws it;
+- *me* is light and the partner is dark (change it with `theme:`); a tap opens the city in the browser (swap in your own with `onTap:`).
+- without `public_url` on the server, image and link are relative: `StopoverRemoteCard` resolves them itself; with `StopoverChatCard`, pass `base:`.
+
+It only needs `StopoverK` (colours, fonts) and `WikiImage` (cached remote images) from the same folder.
+
+<p align="center"><img src="../docs/img/chat-cards.png" width="300" alt="Chat cards: light ones are what I handed over or replied, dark ones are what the partner said or handed over"></p>
+
 ## Push (optional, off by default)
 
 Without push the app builds and runs as-is in the simulator and on a device, no paid developer account needed. To get notified when your partner hands you something or replies:

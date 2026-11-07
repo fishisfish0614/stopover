@@ -184,7 +184,7 @@ Webhook payload (`text` is rendered from `inject.template`, variables `{me}` `{p
 }
 ```
 
-**5. Chat cards.** Every hand-over and every comment has its own random key. `GET /card/share/{id}?k=…` (`/card/comment/{id}?k=…`) is a small, self-contained card you can put in an iframe (transparent background, max 360px wide, `?theme=light|dark`); `GET /api/share/{id}/card?k=…` returns the same fields as JSON (eyebrow / title / subtitle / body / who / theme / image / link) so other chat front-ends can draw their own. Keys are in `GET /api/state` and in the webhook. Missing or wrong key → 403. Set `public_url` so links in cards, pushes and webhooks are absolute.
+**5. Chat cards.** Every hand-over and every comment has its own random key. `GET /card/share/{id}?k=…` (`/card/comment/{id}?k=…`) is a small, self-contained card you can put in an iframe (transparent background, max 360px wide, `?theme=light|dark`); `GET /api/share/{id}/card?k=…` returns the same fields as JSON (eyebrow / title / subtitle / body / who / theme / image / link) so other chat front-ends can draw their own (a ready-made SwiftUI one is in `ios/Stopover/ChatCard.swift`, see [ios/README](ios/README.en.md)). Keys are in `GET /api/state` and in the webhook. Missing or wrong key → 403. Set `public_url` so links in cards, pushes and webhooks are absolute.
 
 **6. Push.** Notifications go to *your* devices when the partner comments, hands you something or stars a place (your own hand-overs don't push — they go through the webhook / inbox above).
 

@@ -32,6 +32,20 @@ TA 递来的收件箱和未读红点、城市卡底部「我们的对话」（�
 名字（「我」「TA」）、默认出发地、家都从服务端的 `/api/config` 读，App 里没有写死。
 App 永远以「我」的身份说话，不带任何鉴权头；「TA」那一侧（比如一个 AI 伴侣）用服务端发给它的 key 调同一套接口。
 
+## 聊天卡片（给你自己的聊天程序用）
+
+App 本身没有聊天页。你递出去的东西、你们说的话，服务端都会出一张卡片（见[根目录 README](../README.md) 的「聊天卡片」），
+网页可以直接 iframe。要是你的聊天程序也是 SwiftUI 写的，可以把 `Stopover/ChatCard.swift` 拷过去，画出同一张卡：
+
+- webhook（`inject.url`）里带着 `cards: [{url, json}]`：把 `json` 解成 `StopoverCard`，交给 `StopoverChatCard(card:)`；
+- 只存了卡片链接的话，用 `StopoverRemoteCard(url:)`，它会去取 `/api/share/{id}/card?k=…` 再画；
+- 「我」的是浅色，「TA」的是深色，可以用 `theme:` 改；点一下默认在浏览器里打开那座城，可以用 `onTap:` 换成你自己的跳转。
+- 服务端没设 `public_url` 时，图片和链接是相对地址，`StopoverRemoteCard` 会自己补全，直接用 `StopoverChatCard` 就传 `base:`。
+
+它只依赖同目录的 `StopoverK`（颜色字体）和 `WikiImage`（带缓存的网络图）。
+
+<p align="center"><img src="../docs/img/chat-cards.png" width="300" alt="聊天卡片：浅色是我递的和我回的，深色是 TA 说的和 TA 递来的"></p>
+
 ## 推送（可选，默认关）
 
 不开推送也能直接编译、在模拟器和真机上用，不需要付费开发者账号。想在 TA 递东西、回你的时候收到提醒：

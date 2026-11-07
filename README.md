@@ -184,7 +184,7 @@ Webhook 的 payload（`text` 由 `inject.template` 渲染，变量 `{me}` `{part
 }
 ```
 
-**5. 聊天卡片。** 每次递送、每句话都有一把随机钥匙：`GET /card/share/{id}?k=…`（`/card/comment/{id}?k=…`）是一张可以 iframe 的小卡片（透明底、最宽 360px，`?theme=light|dark`），`GET /api/share/{id}/card?k=…` 给同样字段的 JSON（eyebrow / title / subtitle / body / who / theme / image / link），方便别的聊天前端自己画。钥匙在 `GET /api/state` 和 webhook 里。没钥匙或钥匙不对 = 403。记得设 `public_url`，卡片、推送和 webhook 里的链接才是绝对地址。
+**5. 聊天卡片。** 每次递送、每句话都有一把随机钥匙：`GET /card/share/{id}?k=…`（`/card/comment/{id}?k=…`）是一张可以 iframe 的小卡片（透明底、最宽 360px，`?theme=light|dark`），`GET /api/share/{id}/card?k=…` 给同样字段的 JSON（eyebrow / title / subtitle / body / who / theme / image / link），方便别的聊天前端自己画（SwiftUI 现成的一份在 `ios/Stopover/ChatCard.swift`，见 [ios/README](ios/README.md)）。钥匙在 `GET /api/state` 和 webhook 里。没钥匙或钥匙不对 = 403。记得设 `public_url`，卡片、推送和 webhook 里的链接才是绝对地址。
 
 **6. 推送。** 伴侣留言、递东西、点星时推到你的设备（你递东西不推，走上面的 webhook / 收件箱）。
 
