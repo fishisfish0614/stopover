@@ -18,7 +18,7 @@ Mark the cities you've been to on a globe. Every stopover is a boarding pass —
 
 - **Three globes**: Blue Marble (蓝石; NASA satellite imagery that sharpens as you zoom in), Night Flight (夜航; NASA Black Marble city lights with the day/night line) and Old Map (旧图; Natural Earth vector borders on a paper texture).
 - **Traces on the map**: red dots for places you've been, with a glowing arc flying in from where you set off and on to where you went next if there is one. Places you want to go are stars — gold for you, blue for your partner, a pair when you both want to go. Clocks and day/night follow the time zones in your config.
-- **Boarding passes**: one per visit — origin → city → next stop, dates, distance and a remark. Tap to lift it, drag the stub to tear it off (or tap again and it tears itself), and you're in the trip.
+- **Boarding passes**: one per visit — origin → city → next stop, dates, distance and a remark. Tap to lift it, hold the stub on the right and pull down along the perforation to tear the whole strip off (on the web, tapping again tears it for you), and you're in the trip.
 
 - **The trip page** (这一次): notes of any length, photos (deduplicated, EXIF capture date, captions and tags), and editable dates, origin and next stop. On the web and iOS it's a [binder folder](#the-trip-page-a-binder-folder).
 - **City pages**: 852 cities have a long-form Chinese page — a history timeline, culture, a sights carousel and a food menu, illustrated with Wikimedia Commons photos and with sources linked on the page. The other 769 have a "Write it up" (整理) button that drafts a page on the spot from Wikipedia / Wikivoyage (needs a DeepSeek key); places not on the map can be found on Wikidata and added.
@@ -35,8 +35,8 @@ Mark the cities you've been to on a globe. Every stopover is a boarding pass —
 
 ![Desktop: the Kyoto page next to a zoomed-in globe](docs/img/desktop.jpg)
 
-<p align="center"><img src="docs/img/tear.gif" width="280" alt="Lifting a boarding pass and tearing off the stub to open the trip"></p>
-<p align="center"><sub>Like this: tap to lift the pass, drag the stub down and away, and the trip is right behind it.</sub></p>
+<p align="center"><img src="docs/img/tear.gif" width="280" alt="Lifting a boarding pass and tearing the whole stub off; the trip folder is right behind it"></p>
+<p align="center"><sub>Like this: tap to lift the pass, hold the stub and pull down along the perforation, the whole strip comes off, and the trip folder is right behind it.</sub></p>
 
 ### The trip page: a binder folder
 

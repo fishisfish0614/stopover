@@ -150,23 +150,41 @@ struct BoardingPass: View {
         // 存根以左下角为轴,撕得越开掀得越多,最多 4°;撕下后落到票旁边歪 2°
         let angle = 4 * tear * (1 - detach) + 2 * detach
         // 票身和存根各自带底色、各自圆角,存根才能单独撕下来(整张一起裁圆角的话存根飞不出去)
+        // 存根从顶通到底,整条右边一起撕下来;备注和「TA 说了 N 句」收进左边票身
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack { tkLabel("STOPOVER · 经停"); Spacer(); tkLabel("NO. \(store.ticketNo(trip))") }
-                    TicketRoute(trip: trip, store: store)
-                    HStack(alignment: .top, spacing: 16) {
-                        meta("DATE", date ?? "——")
-                        if !ps.isEmpty { meta("PHOTOS", "\(ps.count)") }
-                        if !ns.isEmpty { meta("NOTES", "\(ns.count)") }
-                        if let k = store.km(trip.origin, trip.city), trip.origin != trip.city { meta("KM", k.formatted(.number.locale(Locale(identifier: "en_US")))) }
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack { tkLabel("STOPOVER · 经停"); Spacer(); tkLabel("NO. \(store.ticketNo(trip))") }
+                        TicketRoute(trip: trip, store: store)
+                        HStack(alignment: .top, spacing: 16) {
+                            meta("DATE", date ?? "——")
+                            if !ps.isEmpty { meta("PHOTOS", "\(ps.count)") }
+                            if !ns.isEmpty { meta("NOTES", "\(ns.count)") }
+                            if let k = store.km(trip.origin, trip.city), trip.origin != trip.city { meta("KM", k.formatted(.number.locale(Locale(identifier: "en_US")))) }
+                        }
+                    }
+                    .padding(.leading, 16).padding(.trailing, 12).padding(.top, 14).padding(.bottom, 12)
+                    .opacity(blank ? 0.75 : 1)
+                    if foot {
+                        if let r = trip.remark, !r.isEmpty {
+                            VStack(alignment: .leading, spacing: 3) {
+                                tkLabel("REMARKS · 备注")
+                                Text(r).font(StopoverK.serif(15)).foregroundStyle(StopoverK.ink).lineSpacing(5)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 16).padding(.trailing, 12).padding(.top, 10).padding(.bottom, 12)
+                            .overlay(alignment: .top) { Rectangle().fill(StopoverK.harbor.opacity(0.14)).frame(height: 1) }
+                        }
+                        if cm > 0 {
+                            Text("\(StopoverStore.shared.config.partner)说了 \(cm) 句").font(StopoverK.serif(12.5)).foregroundStyle(TK.yy)
+                                .padding(.horizontal, 16).padding(.bottom, 10)
+                        }
                     }
                 }
-                .padding(.leading, 16).padding(.trailing, 12).padding(.top, 14).padding(.bottom, 12)
-                .opacity(blank ? 0.75 : 1)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .background(TK.card)
-                .clipShape(TearEdge(stub: false, tear: tear, nibs: nibs, roundBottom: !foot))
+                .clipShape(TearEdge(stub: false, tear: tear, nibs: nibs))
                 // 存根: 左边一道虚线,上下各咬一个半圆缺口
                 VStack(alignment: .leading) {
                     tkLabel("SEAT")
@@ -182,7 +200,7 @@ struct BoardingPass: View {
                     VLine().stroke(StopoverK.harbor.opacity(0.28), style: StrokeStyle(lineWidth: 2, dash: [5, 4])).frame(width: 2)
                         .opacity(1 - tear)
                 }
-                .clipShape(TearEdge(stub: true, tear: tear, nibs: nibs, roundBottom: !foot))
+                .clipShape(TearEdge(stub: true, tear: tear, nibs: nibs))
                 .shadow(color: StopoverK.ink.opacity(0.18 * (tear * 0.5 + detach * 0.5)), radius: 8 * (tear + detach), y: 4 * (tear + detach))
                 .rotationEffect(.degrees(angle), anchor: .bottomLeading)
                 .offset(x: hand.width + 24 * detach, y: hand.height + 8 * detach)
@@ -199,25 +217,6 @@ struct BoardingPass: View {
                     }
                     .allowsHitTesting(false)
                 }
-            }
-            if foot {
-                VStack(alignment: .leading, spacing: 0) {
-                    if let r = trip.remark, !r.isEmpty {
-                        VStack(alignment: .leading, spacing: 3) {
-                            tkLabel("REMARKS · 备注")
-                            Text(r).font(StopoverK.serif(15)).foregroundStyle(StopoverK.ink).lineSpacing(5)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16).padding(.top, 10).padding(.bottom, 12)
-                        .overlay(alignment: .top) { Rectangle().fill(StopoverK.harbor.opacity(0.14)).frame(height: 1) }
-                    }
-                    if cm > 0 {
-                        Text("\(StopoverStore.shared.config.partner)说了 \(cm) 句").font(StopoverK.serif(12.5)).foregroundStyle(TK.yy)
-                            .padding(.horizontal, 16).padding(.bottom, 10)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(TK.card, in: UnevenRoundedRectangle(bottomLeadingRadius: 12, bottomTrailingRadius: 12, style: .continuous))
             }
         }
         .compositingGroup()
