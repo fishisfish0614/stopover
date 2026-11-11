@@ -284,12 +284,16 @@ def photo_check(body: dict = Body(default={})):
 
 @app.post("/api/trip/{tid}/upload")
 async def upload(tid: int, file: UploadFile = File(...)):
+    raw = await file.read()
+    if len(raw) > 40 * 1024 * 1024: raise HTTPException(413, "照片太大（超过 40MB）")
+    return save_photo(tid, raw, file.filename)
+
+def save_photo(tid, raw, filename):
+    """存原图 + 600/1600 缩略图并入库；同一趟里同一张（sha256）直接回旧的。seed_demo.py 也用它"""
     from PIL import Image, ImageOps
     try:
         import pillow_heif; pillow_heif.register_heif_opener()
     except Exception: pass
-    raw = await file.read()
-    if len(raw) > 40 * 1024 * 1024: raise HTTPException(413, "照片太大（超过 40MB）")
     sha = hashlib.sha256(raw).hexdigest()
     with db() as c:
         trip_row(c, tid)
@@ -304,7 +308,7 @@ async def upload(tid: int, file: UploadFile = File(...)):
         except Exception: pass
         im = ImageOps.exif_transpose(im)
     except Exception: raise HTTPException(400, "认不出这张图片")
-    name = same["file"] if same else f"{sha[:12]}_{re.sub(r'[^\w.\-]+', '_', os.path.basename(file.filename or 'photo.jpg'))[-60:]}"
+    name = same["file"] if same else f"{sha[:12]}_{re.sub(r'[^\w.\-]+', '_', os.path.basename(filename or 'photo.jpg'))[-60:]}"
     if not same:
         open(os.path.join(PHOTOS, name), "wb").write(raw)
         for w in (600, 1600):

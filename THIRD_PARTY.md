@@ -48,4 +48,4 @@ SOFTWARE.
 ## City texts and photos
 
 - `web/data/` city pages were written with the help of an LLM from Wikipedia and Wikivoyage articles, and are therefore released under **CC BY-SA 4.0** (see `web/data/LICENSE`). Source articles are linked from each sight/food entry (`src`).
-- Photos are **not** included in this repository. City pages link to images on Wikimedia Commons; each image keeps its own license and author as shown on its Commons file page.
+- Photos are **not** included in this repository. City pages link to images on Wikimedia Commons; each image keeps its own license and author as shown on its Commons file page. `server/seed_demo.py` downloads four Commons photos into your local `var/photos/` at seed time (CC BY-SA / CC BY; author, license and file page are printed and written to `var/demo-photo-credits.txt`); they are not redistributed by this repository.

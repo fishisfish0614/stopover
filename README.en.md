@@ -93,7 +93,7 @@ Set `features.share=false` and everything below disappears from the web page, le
 ```bash
 pip install -r server/requirements.txt
 cp server/config.example.json server/config.json   # names, home, default origins, clocks, partner
-python3 server/seed_demo.py                         # optional: a few made-up trips and a short conversation
+python3 server/seed_demo.py                         # optional: a few made-up trips and a short conversation, plus 4 photos fetched from Wikimedia Commons (--no-photos to skip)
 python3 server/stopover.py                          # → http://localhost:8000
 ```
 

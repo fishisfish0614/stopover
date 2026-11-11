@@ -93,7 +93,7 @@
 ```bash
 pip install -r server/requirements.txt
 cp server/config.example.json server/config.json   # 名字、家、默认出发地、时钟、伴侣
-python3 server/seed_demo.py                         # 可选：几条虚构的旅行和对话
+python3 server/seed_demo.py                         # 可选：几条虚构的旅行和对话，外加从 Wikimedia Commons 现拉的 4 张照片（--no-photos 不拉）
 python3 server/stopover.py                          # → http://localhost:8000
 ```
 
