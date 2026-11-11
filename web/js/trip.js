@@ -11,16 +11,17 @@ function routeHTML(t){
 }
 function ticketHTML(t, i, n){
   const c=byId[t.city], o=byId[t.origin], ps=photosOf(t.id), ns=notesOf(t.id), blank=!t.date_start&&!t.remark&&!ps.length&&!ns.length;
-  return `<button class="tk ${blank?"dim":""} ${t.remark?"foot":""}" data-trip="${t.id}" aria-label="${esc(c.name)}第 ${i+1} 次，点开">
-    <span class="tk-row"><span class="tk-main">
+  // the stub runs top to bottom and tears off whole; the remark sits inside the left body
+  return `<button class="tk ${blank?"dim":""}" data-trip="${t.id}" aria-label="${esc(c.name)}第 ${i+1} 次，点开">
+    <span class="tk-row"><span class="tk-main"><span class="tk-body">
       <span class="tk-air"><span class="tk-l">STOPOVER · 经停</span><span class="tk-l">NO. ${tno(t)}</span></span>
       ${routeHTML(t)}
       <span class="tk-meta"><span><span class="tk-l">DATE</span><span class="tk-v">${t.date_start?esc(fmtTD(t)):"——"}</span></span>
         ${ps.length?`<span><span class="tk-l">PHOTOS</span><span class="tk-v">${ps.length}</span></span>`:""}
         ${ns.length?`<span><span class="tk-l">NOTES</span><span class="tk-v">${ns.length}</span></span>`:""}
-        ${o?`<span><span class="tk-l">KM</span><span class="tk-v">${km(o,c).toLocaleString("en-US")}</span></span>`:""}</span>
+        ${o?`<span><span class="tk-l">KM</span><span class="tk-v">${km(o,c).toLocaleString("en-US")}</span></span>`:""}</span></span>
+      ${t.remark?`<span class="tk-rem"><span class="tk-l">REMARKS · 备注</span><span class="tk-rp">${esc(t.remark)}</span></span>`:""}
     </span><span class="tk-stub"><span><span class="tk-l">SEAT</span><span class="tk-seat">${String(i+1).padStart(2,"0")}</span></span><span class="tk-hint">撕开 ↘</span><span class="tk-bc"></span></span></span>
-    ${t.remark?`<span class="tk-rem"><span class="tk-l">REMARKS · 备注</span><span class="tk-rp">${esc(t.remark)}</span></span>`:""}
   </button>`;
 }
 const fmtTD = t => { const f=d=>d.replace(/-/g,"."); return t.date_end&&t.date_end!==t.date_start ? `${f(t.date_start)} – ${f(t.date_end)}` : f(t.date_start); };
@@ -243,12 +244,12 @@ function tkProfile(seed,h){
 const tkArc=(cx,cy,a0,a1)=>Array.from({length:7},(_,i)=>{ const a=a0+(a1-a0)*i/6; return `${(cx+Math.cos(a)*TK.NOTCH).toFixed(1)}px ${(cy+Math.sin(a)*TK.NOTCH).toFixed(1)}px`; });
 function tkShape(tk, p){
   const main=tk.querySelector(".tk-main"), stub=tk.querySelector(".tk-stub"); if(!main||!stub) return;
-  const w=main.offsetWidth, sw=stub.offsetWidth, h=main.offsetHeight, foot=tk.classList.contains("foot"), N=TK.NOTCH;
+  const w=main.offsetWidth, sw=stub.offsetWidth, h=main.offsetHeight, N=TK.NOTCH;
   if(!tk._prof||tk._prof.length<h+1) tk._prof=tkProfile(+tk.dataset.trip||1, h);
   const front=p*h, eb=[], es=[];
-  for(let y=N; y<=h-(foot?0:N); y+=1){ const o=y<=front? tk._prof[y]*TK.AMP : 0; eb.push(`${(w+o).toFixed(1)}px ${y}px`); es.push(`${o.toFixed(1)}px ${y}px`); }
-  main.style.clipPath=`polygon(0px 0px, ${tkArc(w,0,Math.PI,Math.PI/2).join(",")}, ${eb.join(",")}, ${foot?`${w}px ${h}px`:tkArc(w,h,-Math.PI/2,-Math.PI).join(",")}, 0px ${h}px)`;
-  stub.style.clipPath=`polygon(${sw}px 0px, ${tkArc(0,0,0,Math.PI/2).join(",")}, ${es.join(",")}, ${foot?`0px ${h}px`:tkArc(0,h,-Math.PI/2,0).join(",")}, ${sw}px ${h}px)`;
+  for(let y=N; y<=h-N; y+=1){ const o=y<=front? tk._prof[y]*TK.AMP : 0; eb.push(`${(w+o).toFixed(1)}px ${y}px`); es.push(`${o.toFixed(1)}px ${y}px`); }
+  main.style.clipPath=`polygon(0px 0px, ${tkArc(w,0,Math.PI,Math.PI/2).join(",")}, ${eb.join(",")}, ${tkArc(w,h,-Math.PI/2,-Math.PI).join(",")}, 0px ${h}px)`;
+  stub.style.clipPath=`polygon(${sw}px 0px, ${tkArc(0,0,0,Math.PI/2).join(",")}, ${es.join(",")}, ${tkArc(0,h,-Math.PI/2,0).join(",")}, ${sw}px ${h}px)`;
 }
 function tearable(tk){
   const tid=+tk.dataset.trip, stub=tk.querySelector(".tk-stub");

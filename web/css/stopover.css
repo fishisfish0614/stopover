@@ -252,8 +252,6 @@ html,body{margin:0}
 /* 底色拆到票身 / 存根 / 底栏各自身上，存根撕走后原位是空的，不会露出底下的票面 */
 .tk-main{background:#F4F1EB;border-radius:12px 0 0 12px}
 .tk-stub{border-radius:0 12px 12px 0}
-.tk.foot .tk-main{border-radius:12px 0 0 0}.tk.foot .tk-stub{border-radius:0 12px 0 0}
-.tk-rem{background:#F4F1EB}.tk.foot>:last-child{border-radius:0 0 12px 12px}
 .tk{transition:transform .3s cubic-bezier(.2,.8,.2,1),filter .3s}
 .tk.lift{transform:translateY(-6px) scale(1.02);filter:drop-shadow(0 2px 0 rgba(31,42,56,.06)) drop-shadow(0 16px 18px rgba(31,42,56,.22));z-index:2}
 .tk.lift,.tk.tearing{overflow:visible}
@@ -268,7 +266,8 @@ html,body{margin:0}
 @keyframes riseUp{from{transform:translateY(100%)}to{transform:none}}
 @media (prefers-reduced-motion:reduce){.tk,.tk-stub{transition:none!important;animation:none!important}#trip.rise .shin{animation:none}}.tk:focus-visible{outline:2px solid #3F5F86;outline-offset:3px}
 .tk-row{display:grid;grid-template-columns:1fr 74px}
-.tk-main{padding:14px 12px 12px 16px;display:grid;gap:10px;min-width:0}
+.tk-main{display:flex;flex-direction:column;min-width:0}
+.tk-body{padding:14px 12px 12px 16px;display:grid;gap:10px}
 .tk-stub{position:relative;border-left:2px dashed rgba(63,95,134,.28);padding:14px 10px 12px 12px;display:grid;align-content:space-between;gap:8px}
 /* 两端的半圆缺口由 tkShape() 的 clip-path 真挖出来 */
 .tk-l{display:block;font:500 9.5px var(--f-mono);letter-spacing:.18em;color:#6F9FC8}
@@ -282,7 +281,7 @@ html,body{margin:0}
 .tk-meta{display:flex;gap:16px;flex-wrap:wrap}
 .tk-seat{display:block;font:600 22px/1 var(--f-mono);color:#3F5F86}
 .tk-bc{display:block;height:28px;opacity:.5;background:repeating-linear-gradient(90deg,#1F2A38 0 1px,transparent 1px 3px,#1F2A38 3px 5px,transparent 5px 6px,#1F2A38 6px 7px,transparent 7px 10px)}
-.tk-rem{display:grid;gap:3px;border-top:1px solid rgba(63,95,134,.14);padding:10px 16px 12px}.tk-rp{font:15px/1.6 var(--f-serif);color:#1F2A38}
+.tk-rem{display:grid;gap:3px;border-top:1px solid rgba(63,95,134,.14);padding:10px 12px 12px 16px}.tk-rp{font:15px/1.6 var(--f-serif);color:#1F2A38}
 .tk.dim .tk-code,.tk.dim .tk-v{color:#5b6675}
 .bpage{padding-top:0!important}
 .tbp{margin:0 -18px;padding:22px 18px 4px;background:#1F2A38;color:#E6E2DA;display:grid;gap:16px}
