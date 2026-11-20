@@ -502,6 +502,8 @@ SQLite 表结构见 `init()`。下面只列客户端能看到的字段。
 ← {"ok": false, "text": "✗ 没有 nope 这个工具"}
 ```
 
+**标签模式**：`cli/tags.py` 把伴侣回复里的 `[jt 说 对象 (回 c:N)]话[/jt]` `[jt 想去 城市 理由]` `[jt 不想去 城市]` `[jt 递 对象 附言]` 剥出来，逐个转成上面的 `say` / `wish` / `unwish` / `share` 调用。`config.hints = "tags"` 时，工具输出末尾「→ 这样回」的提示也写成标签。
+
 ## 8. 照片签名与卡片钥匙 / Signed photos & card keys
 
 **照片签名 `s`**

@@ -559,6 +559,19 @@ def target_label(c, t, view):
     except (HTTPException, ValueError, IndexError): pass
     return t
 
+# ---------- 写操作提示：hints="tags" 时写成正文标签（cli/tags.py 认，伴侣不用调工具），默认写成工具调用 ----------
+def _tags(): return cfg().get("hints") == "tags"
+def h_say(obj, cid=None):
+    if _tags(): return f"[jt 说 {obj}" + (f" 回 c:{cid}" if cid else "") + "]话[/jt]"
+    return f"say {obj} \"…\"" + (f" reply_to=c:{cid}" if cid else "")
+def h_wish(city, note=False):
+    if _tags(): return f"[jt 想去 {city}" + (" 理由" if note else "") + "]"
+    return f"wish {city}" + (" note=\"理由\"" if note else "")
+def h_unwish(city): return f"[jt 不想去 {city}]" if _tags() else f"unwish {city}"
+def h_share(ref, note=False):
+    if _tags(): return f"[jt 递 {ref}" + (" 附言" if note else "") + "]"
+    return f"share {ref}" + (" note=\"…\"" if note else "")
+
 def short_ref(t):
     k, _, v = t.partition(":")
     return cname(v) if k == "city" else {"trip": "t:", "photo": "p:", "note": "n:", "share": "d:"}.get(k, "") + v
@@ -628,7 +641,7 @@ def digest(c, shs, rps, mx):
                 try: lines += describe(c, it, bool(r["img"]), imgs, mx)
                 except HTTPException: lines.append("· （有一样已经被删掉了）")
             if r["note"]: lines.append(f"  {M}说：{r['note']}")
-            lines.append(f"  回这一样：say d:{r['id']} \"…\"")
+            lines.append(f"  回这一样：{h_say('d:' + str(r['id']))}")
             cd = share_card(c, r); cards.append({"url": cd["url"], "json": cd})
             so.append({"id": r["id"], "created": r["created"], "items": json.loads(r["items"]), "note": r["note"] or "", "card": cd["url"]})
     if rps:
@@ -638,7 +651,7 @@ def digest(c, shs, rps, mx):
             where = target_label(c, m["target"], "partner")
             q = c.execute("SELECT who, text FROM comments WHERE id=?", (m["reply_to"],)).fetchone() if m["reply_to"] else None
             lines.append(f"· 在{where}（c:{m['id']}）" + (f"，回{'你' if q['who'] == 'partner' else '自己'}的「{cut(q['text'], 20)}」" if q else "") + f"：{m['text']}")
-            lines.append(f"  → 回：say {short_ref(m['target'])} \"…\" reply_to=c:{m['id']}")
+            lines.append(f"  → 回：{h_say(short_ref(m['target']), m['id'])}")
             cd = comment_card(c, m); cards.append({"url": cd["url"], "json": cd})
             ro.append({"id": m["id"], "created": m["created"], "target": m["target"], "where": where, "text": m["text"], "reply_to": m["reply_to"], "card": cd["url"]})
     return "\n".join(lines), imgs, cards, so, ro
@@ -1132,7 +1145,7 @@ def t_look(a):
             out = [f"{'你' if sh['who'] == 'partner' else M}递的：{'、'.join(names)}　{_hm(sh['created'])}"]
             if sh["note"]: out.append(f"  附言：{sh['note']}")
             out += [f"  c:{r['id']} {_who_word(r['who'])}：{r['text']}" for r in c.execute("SELECT id, who, text FROM comments WHERE target=? ORDER BY id", (f"share:{sh['id']}",))]
-            out.append(f"——\n回这一次：say d:{sh['id']} \"…\"（回某一句加 reply_to=c:编号）")
+            out.append(f"——\n回这一次：{h_say('d:' + str(sh['id']))}（回某一句：{h_say('d:' + str(sh['id']), '编号')}）")
             return "\n".join(out), None
         if m and m.group(1) == "t":
             try: t = trip_row(c, int(m.group(2)))
@@ -1144,14 +1157,14 @@ def t_look(a):
             ps = [dict(r) for r in c.execute("SELECT id, caption FROM photos WHERE trip_id=? ORDER BY COALESCE(taken, created), id", (t["id"],))]
             if ps: out.append("  照片：" + "　".join(f"p:{p['id']}" + (f"「{cut(p['caption'], 16)}」" if p["caption"] else "") for p in ps))
             out += _cms(c, f"trip:{t['id']}")
-            out.append(f"——\n随记全文：read n:编号　看照片：look p:编号　留言：say t:{t['id']} \"…\"")
+            out.append(f"——\n随记全文：read n:编号　看照片：look p:编号　留言：{h_say('t:' + str(t['id']))}")
             return "\n".join(out), None
         if m and m.group(1) == "p":
             try: p = photo_row(c, int(m.group(2)))
             except HTTPException: raise ToolErr("没有这张照片")
             f = photo_file(c, p["id"], 1600) or photo_file(c, p["id"], 600)
             out = [f"{trip_label(c, p['trip_id'])}的照片 p:{p['id']}" + (f"\n  配文：{p['caption']}" if p["caption"] else "")] + _cms(c, f"photo:{p['id']}")
-            out.append(f"——\n留言：say p:{p['id']} \"…\"")
+            out.append(f"——\n留言：{h_say('p:' + str(p['id']))}")
             return "\n".join(out), (_photo_b64(f) if f else None)
         cid = city_id(x); pg = city_page(cid); ts = _trips(c, cid); n_ = cname(cid); co = cities()[cid]
         if not pg:
@@ -1179,7 +1192,7 @@ def t_look(a):
         if pg.get("history") or pg.get("culture"): out.append(f"历史和文化：read {n_}")
         if pg.get("sights") or pg.get("foods"): out.append(f"景点 / 美食全文：read s:{n_}/编号 · read f:{n_}/编号　图：img s:{n_}/编号")
         if ts: out.append("某一次：look t:编号")
-        out.append(f"留言：say {n_} \"…\"　某次递送的对话：look d:编号")
+        out.append(f"留言：{h_say(n_)}　某次递送的对话：look d:编号")
         return "\n".join(out), None
 
 SECTIONS = {"history": "history", "历史": "history", "culture": "culture", "文化": "culture", "all": "all", "全部": "all"}
@@ -1192,12 +1205,12 @@ def t_read(a):
             try: n = note_row(c, int(m.group(1)))
             except HTTPException: raise ToolErr("没有这段随记")
             out = [f"【{trip_label(c, n['trip_id'])}的随记 · {M}写的】\n{n['text']}"] + _cms(c, f"note:{n['id']}")
-        return "\n".join(out) + f"\n——\n留言：say n:{n['id']} \"…\"", None
+        return "\n".join(out) + f"\n——\n留言：{h_say('n:' + str(n['id']))}", None
     it = sf_ref(x)
     if it:
         s = sf_item(it); n_ = cname(it["city"])
         return (f"【{n_} · {s.get('name', '')}】" + (s["orig"] if s.get("orig") and s["orig"] != s.get("name") else "") + "\n" + (s.get("intro") or "（没有介绍）")
-                + f"\n——\n图：img {wiki_ref(it)}　递给{M}：share {wiki_ref(it)} note=\"…\""), None
+                + f"\n——\n图：img {wiki_ref(it)}　递给{M}：{h_share(wiki_ref(it), True)}"), None
     cid = city_id(x); pg = city_page(cid); n_ = cname(cid)
     if not (pg.get("history") or pg.get("culture")): raise ToolErr(f"{n_}还没有资料。现场整理一页（约一分钟）：gen {n_}")
     sec = SECTIONS.get(str(a.get("section") or "").strip().lower())
@@ -1249,12 +1262,12 @@ def t_wishes(a):
     with db() as c:
         for w in c.execute("SELECT city, by, note FROM wishes ORDER BY created"): by.setdefault(w["city"], {})[w["by"]] = w["note"]
         been = {r[0] for r in c.execute("SELECT DISTINCT city FROM checkins")}
-    if not by: return "还没有人点星。\n——\n点亮：wish 城市名 note=\"理由\"", None
+    if not by: return f"还没有人点星。\n——\n点亮：{h_wish('城市名', True)}", None
     def fmt(cid, d): return cname(cid) + (f"({M}来过)" if cid in been else "") + "".join(f"「{cut(v, 16)}」" for v in d.values() if v)
     both = [k for k, d in by.items() if len(d) == 2]; mine = [k for k, d in by.items() if list(d) == ["me"]]; his = [k for k, d in by.items() if list(d) == ["partner"]]
     out = ([f"都想去 {len(both)}：" + "　".join(fmt(k, by[k]) for k in both)] if both else []) + \
           [f"{M}想去 {len(mine)}：" + ("　".join(fmt(k, by[k]) for k in mine) or "（没有）"), f"你想去 {len(his)}：" + ("　".join(fmt(k, by[k]) for k in his) or "（没有）")]
-    return "\n".join(out) + "\n——\n点亮：wish 城市名　收回：unwish 城市名", None
+    return "\n".join(out) + f"\n——\n点亮：{h_wish('城市名')}　收回：{h_unwish('城市名')}", None
 
 def t_share(a):
     x = str(a.get("ref") or "").strip()
@@ -1271,7 +1284,7 @@ def t_wander(a):
     out = [f"{n_}（{pg.get('en', '')}{' · ' + country_zh(cities()[cid]['country']) if cities()[cid].get('country') else ''}）"]
     if pg.get("dek"): out.append(f"  {pg['dek']}")
     if pg.get("sights"): s = random.choice(pg["sights"]); out.append(f"  {s['name']}：{cut(s.get('intro'), 50)}")
-    out.append(f"——\n目录：look {n_}　想去：wish {n_}　递给{nm('me')}：share {n_}")
+    out.append(f"——\n目录：look {n_}　想去：{h_wish(n_)}　递给{nm('me')}：{h_share(n_)}")
     return "\n".join(out), None
 
 def t_gen(a):

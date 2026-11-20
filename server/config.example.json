@@ -11,6 +11,9 @@
   "_partner_key": "Secret for your partner (e.g. an AI companion). Requests with 'Authorization: Bearer <partner_key>' act as the partner; /mcp, /api/partner/* and cli/stopover.py need it. Empty = partner features are view-only in the web page and no AI can call in. Generate one: python3 -c \"import secrets;print(secrets.token_urlsafe(32))\"",
   "partner_key": "",
 
+  "_hints": "How the \"→ reply like this\" lines in the partner's tool output are written. tool = say d:2 \"…\" (MCP / CLI); tags = [jt 说 d:2]话[/jt], for a chat app that runs the partner's reply through cli/tags.py.",
+  "hints": "tool",
+
   "_features": "share=false hides every hand-over / conversation / inbox UI in the web page.",
   "features": {"share": true},
 

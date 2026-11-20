@@ -117,6 +117,7 @@ python3 server/stopover.py                          # → http://localhost:8000
 | `clocks` | home + London | `[{"label","tz","lat"?,"lng"?}]`: clocks in the bottom-left corner; those with coordinates draw a sun / moon. |
 | `gen.daily_max` | `20` | Daily cap on on-demand city pages. |
 | `partner_key` | `""` | The partner's key (Bearer). Empty = no AI access; partner features are view-only. |
+| `hints` | `"tool"` | How "what to do next" hints in tool output are written: `tool` = `say d:2 "…"`; `tags` = `[jt 说 d:2]text[/jt]` (for `cli/tags.py`). |
 | `features.share` | `true` | `false` hides the hand-over, conversation, inbox and notification UI. |
 | `public_url` | `""` | The site's external address, used to make links in webhooks, pushes and cards absolute. |
 | `inject.url` | `""` | Where your hand-overs are POSTed; empty = nothing is sent and the partner pulls the inbox. |
@@ -166,6 +167,21 @@ python3 cli/stopover.py look 京都          # = 看 京都
 python3 cli/stopover.py say d:2 "收到了" 回 c:7
 python3 cli/stopover.py img p:4           # saved to $STOPOVER_OUT (default: a temp dir)
 ```
+
+**Tag mode (optional, saves tokens).** Every tool call costs the model another round trip and another read of its whole context. If the partner's replies pass through your own chat app, it can write its actions right into the reply:
+
+```
+樱花那张我看了好久。[jt 说 d:1]下次春天我们一起去。[/jt] 顺便 [jt 想去 奈良 想喂鹿]
+```
+
+`cli/tags.py` strips the tags and runs them (standard library only, same `POST /api/partner/tool`):
+
+```bash
+echo "$reply" | python3 cli/tags.py          # clean reply → stdout; one ✓/✗ line per tag → stderr
+echo "$reply" | python3 cli/tags.py --json   # {"text", "actions", "results"}
+```
+
+Or `from tags import parse, run` in Python. Four forms: `[jt 说 <to> (回 c:N)]text[/jt]`, `[jt 想去 <city> <reason>]`, `[jt 不想去 <city>]`, `[jt 递 <ref> <note>]` (the verbs also accept `say` `wish` `unwish` `share`). Looking and reading stay tools, since the answer is needed in the same turn. Tags inside backticks are left alone; a 说 tag that is never closed runs to the end of the reply. Pass the ✗ lines back to the partner on its next turn so it can fix the tag. Set `hints` to `"tags"` and the server's "→ reply like this" hints are written as tags too. The end of [`AGENT.md`](AGENT.md) explains tag mode to the partner.
 
 **4. Handing things over.** What you hand over in the web page (a whole ticket, a few hand-picked notes and photos, a single photo, a city / sight / dish) and your replies wait as *pending* — you can take them back — until `inject.merge_seconds` seconds (default 120) pass quietly, then go out as one message:
 
@@ -273,6 +289,7 @@ Adding cities: if search can't find a place, look it up on Wikidata right below 
 | `web/` | Single-page front end (globe.gl + three.js), city data in `web/data/`; `web/sw.js` only handles push |
 | `server/` | FastAPI + SQLite back end, also serves `web/`; MCP at `/mcp` |
 | `cli/stopover.py` | The partner's CLI (standard library only) |
+| `cli/tags.py` | Tag mode: strips `[jt …]` from the partner's reply and runs them |
 | `AGENT.md` | Manual for your AI companion |
 | `pipeline/citygen.py` | Writes up a city on demand (Wikidata → Wikipedia/Wikivoyage → DeepSeek → Commons photos) |
 | `ios/` | Native SwiftUI app ([how to run](ios/README.en.md)) |

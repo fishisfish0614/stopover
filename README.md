@@ -117,6 +117,7 @@ python3 server/stopover.py                          # → http://localhost:8000
 | `clocks` | 家里 + 伦敦 | `[{"label","tz","lat"?,"lng"?}]`：左下角的时钟，有坐标的画日 / 月。 |
 | `gen.daily_max` | `20` | 每天最多现场整理几座城。 |
 | `partner_key` | `""` | 伴侣的钥匙（Bearer）。空 = AI 调不进来，伴侣部分只能看。 |
+| `hints` | `"tool"` | 工具输出里「下一步怎么回」的写法：`tool` = `say d:2 "…"`；`tags` = `[jt 说 d:2]话[/jt]`（配合 `cli/tags.py`）。 |
 | `features.share` | `true` | `false` 藏起递送、对话、收件箱和通知的界面。 |
 | `public_url` | `""` | 站点的外部地址，webhook / 推送 / 卡片里的链接用它拼成绝对地址。 |
 | `inject.url` | `""` | 你递的东西 POST 到哪；空 = 不发，伴侣自己拉收件箱。 |
@@ -166,6 +167,21 @@ python3 cli/stopover.py look 京都          # = 看 京都
 python3 cli/stopover.py say d:2 "收到了" 回 c:7
 python3 cli/stopover.py img p:4           # 图存到 $STOPOVER_OUT（默认临时目录）
 ```
+
+**标签模式（可选，省 token）。** 每调一次工具，模型就要多跑一轮请求、把整段上下文再读一遍。如果伴侣的回复会经过你自己的聊天程序，可以让它把写操作直接写在正文里：
+
+```
+樱花那张我看了好久。[jt 说 d:1]下次春天我们一起去。[/jt] 顺便 [jt 想去 奈良 想喂鹿]
+```
+
+`cli/tags.py` 负责剥掉标签并执行（同样只用标准库，走同一套 `POST /api/partner/tool`）：
+
+```bash
+echo "$reply" | python3 cli/tags.py          # 干净的回复 → stdout；每个标签一行 ✓/✗ → stderr
+echo "$reply" | python3 cli/tags.py --json   # {"text", "actions", "results"}
+```
+
+或者在 Python 里 `from tags import parse, run`。认四种：`[jt 说 对象 (回 c:N)]话[/jt]`、`[jt 想去 城市 理由]`、`[jt 不想去 城市]`、`[jt 递 对象 附言]`（动词也认 `say` `wish` `unwish` `share`）；看和读仍是工具，因为同一轮就要拿到结果。反引号里的不执行；「说」忘了闭标签就算到回复结尾。失败的 ✗ 那行建议在下一轮带给伴侣，让它改写法。再把 `hints` 设成 `"tags"`，服务端输出里「→ 这样回」的提示也会写成标签。[`AGENT.md`](AGENT.md) 末尾有一节给伴侣看的标签用法。
 
 **4. 递过去。** 你在网页上递的东西（整张票、挑几段几张、一张照片、城市 / 景点 / 美食）和你回的话先进「待送达」，可以撤回；安静 `inject.merge_seconds` 秒（默认 120）后合成一条：
 
@@ -273,6 +289,7 @@ location / {
 | `web/` | 单页前端（globe.gl + three.js），城市数据 `web/data/`；`web/sw.js` 只管推送 |
 | `server/` | FastAPI + SQLite 后端，也托管 `web/`；MCP 在 `/mcp` |
 | `cli/stopover.py` | 伴侣用的命令行（只用标准库） |
+| `cli/tags.py` | 标签模式：剥掉伴侣回复里的 `[jt …]` 并执行 |
 | `AGENT.md` | 给 AI 伴侣看的手册 |
 | `pipeline/citygen.py` | 现场整理一座城（Wikidata → Wikipedia/Wikivoyage → DeepSeek → Commons 配图） |
 | `ios/` | SwiftUI 原生版（[怎么跑](ios/README.md)） |
