@@ -8,6 +8,7 @@ A native SwiftUI client for `server/stopover.py` in this same repository.
 
 1. Start the server first (see the [root README](../README.en.md)):
    ```sh
+   python3 -m venv .venv && . .venv/bin/activate   # Python 3.9+
    pip install -r server/requirements.txt
    python3 server/seed_demo.py   # optional: a few made-up demo trips
    python3 server/stopover.py    # → http://localhost:8000
@@ -15,7 +16,7 @@ A native SwiftUI client for `server/stopover.py` in this same repository.
 2. Open `ios/Stopover.xcodeproj` in Xcode 16 or later, pick an iPhone simulator and Run. Requires iOS 17+.
    To install on a device, choose your own Team under *Signing & Capabilities* and change the Bundle Identifier (default `com.example.stopover`) to one of your own.
 3. On first launch the app asks for the server address. If the simulator and the server are on the same Mac, keep the default `http://localhost:8000`;
-   on a device, use your computer's LAN address, e.g. `http://192.168.1.10:8000`. You can change it later with the gear in the top-right corner of the globe page.
+   on a device, use your computer's LAN address, e.g. `http://192.168.1.10:8000` (start the server with `STOPOVER_HOST=0.0.0.0`, on your own LAN only). You can change it later with the gear in the top-right corner of the globe page.
 
 ## What's in it
 
@@ -25,8 +26,8 @@ editable dates and remarks / origin / next stop, notes, photos, wishlist stars, 
 the dice, and writing up a page on the spot for cities without one (the server needs `DEEPSEEK_API_KEY`).
 
 The two-person part (shown when `features.share` in the server's `/api/config` is true; turn it off and it's hidden entirely, leaving just your own log):
-"Hand it over" (递给TA) a city / a sight / a dish / a whole ticket / a few notes and photos (anything handed over within two minutes is merged into one message, and you can take it back until it's delivered);
-an inbox of what your partner hands you with unread dots; "Our conversation" (我们的对话) at the bottom of each city card (one thread per hand-over, plus "just talking" (平时说的)); and replies to your partner's comments. Poster and note pages show the conversation about that item underneath, where you can reply;
+"Hand it over" (递给TA) a city / a sight / a dish / a whole ticket / a few notes and photos (things handed over in a row wait until `inject.merge_seconds` of quiet, then go out as one message; you can take them back until then);
+往来, the inbox (all / mine / partner's, with unread dots on what your partner handed you); "Our conversation" (我们的对话) at the bottom of each city card (one thread per hand-over, plus "just talking" (平时说的)); and replies to your partner's comments. Poster and note pages show the conversation about that item underneath, where you can reply;
 tapping a photo, note or ticket slip in the inbox (往来) opens that trip and pulls the page straight out.
 
 Names (`me` / `partner`, e.g. 「我」「TA」), the default origin and home are all read from the server's `/api/config`; nothing is hard-coded in the app.
@@ -42,7 +43,7 @@ which a web page can simply iframe. If your chat app is SwiftUI too, copy `Stopo
 - *me* is light and the partner is dark (change it with `theme:`); a tap opens the city in the browser (swap in your own with `onTap:`).
 - without `public_url` on the server, image and link are relative: `StopoverRemoteCard` resolves them itself; with `StopoverChatCard`, pass `base:`.
 
-It only needs `StopoverK` (colours, fonts) and `WikiImage` (cached remote images) from the same folder.
+Copy along what it uses: `StopoverK` (colours, fonts) from `HomeView.swift`, `WikiImage` (cached remote images) and `UIColor(hex:)` from `Kit.swift`, and the Instrument Serif / IBM Plex Mono fonts in `Resources/`.
 
 <p align="center"><img src="../docs/img/chat-cards.png" width="300" alt="Chat cards: light ones are what I handed over or replied, dark ones are what the partner said or handed over"></p>
 

@@ -8,14 +8,15 @@ SwiftUI 原生版，连同一个仓库里的 `server/stopover.py`。
 
 1. 先把服务端跑起来（见[根目录 README](../README.md)）：
    ```sh
+   python3 -m venv .venv && . .venv/bin/activate   # Python 3.9 以上
    pip install -r server/requirements.txt
-   python3 server/seed_demo.py   # 可选：写几条虚构的示例旅行
-   python3 server/stopover.py    # → http://localhost:8000
+   python3 server/seed_demo.py   # 可选：几条虚构的示例旅行，外加从 Wikimedia Commons 现拉的 4 张照片
+   python3 server/stopover.py    # → http://localhost:8000（真机要连：STOPOVER_HOST=0.0.0.0 python3 server/stopover.py）
    ```
 2. 用 Xcode 16 或更新的版本打开 `ios/Stopover.xcodeproj`，选一个 iPhone 模拟器，Run。最低支持 iOS 17。
    要装到真机的话，在 *Signing & Capabilities* 里选你自己的 Team，把 Bundle Identifier（默认 `com.example.stopover`）改成你自己的。
 3. 第一次打开会问服务器地址。模拟器和服务端在同一台 Mac 上就用默认的 `http://localhost:8000`；
-   真机要填电脑的局域网地址，比如 `http://192.168.1.10:8000`。之后点地球页右上角的齿轮可以改。
+   真机要填电脑的局域网地址，比如 `http://192.168.1.10:8000`（服务端得用 `STOPOVER_HOST=0.0.0.0` 启动，只在自己的局域网里这样开）。之后点地球页右上角的齿轮可以改。
 
 ## 有什么
 
@@ -25,8 +26,8 @@ SwiftUI 原生版，连同一个仓库里的 `server/stopover.py`。
 骰子、给没资料的城现场整理一页（服务端要配 `DEEPSEEK_API_KEY`）。
 
 两个人用的部分（服务端 `/api/config` 的 `features.share` 为 true 时出现，关掉就整块藏起来，只自己记）：
-把一座城 / 一个景点 / 一道菜 / 一整张票 / 几段随记几张照片「递给 TA」（两分钟内连着递的合成一条送过去，送到前可以撤回）、
-TA 递来的收件箱和未读红点、城市卡底部「我们的对话」（每次递送一组 + 平时说的）、回复 TA 的评论；海报页和随记页下面也显示这一项的对话，可以接着回；
+把一座城 / 一个景点 / 一道菜 / 一整张票 / 几段随记几张照片「递给 TA」（连着递的先攒着，安静 `inject.merge_seconds` 秒后合成一条送过去，送到前可以撤回）、
+「往来」（全部 / 我递的 / TA 递的，TA 递来没看的有红点）、城市卡底部「我们的对话」（每次递送一组 + 平时说的）、回复 TA 的评论；海报页和随记页下面也显示这一项的对话，可以接着回；
 「往来」里点照片 / 随记 / 票的纸条，直接打开那一次并抽出那一页。
 
 名字（「我」「TA」）、默认出发地、家都从服务端的 `/api/config` 读，App 里没有写死。
@@ -42,7 +43,7 @@ App 本身没有聊天页。你递出去的东西、你们说的话，服务端�
 - 「我」的是浅色，「TA」的是深色，可以用 `theme:` 改；点一下默认在浏览器里打开那座城，可以用 `onTap:` 换成你自己的跳转。
 - 服务端没设 `public_url` 时，图片和链接是相对地址，`StopoverRemoteCard` 会自己补全，直接用 `StopoverChatCard` 就传 `base:`。
 
-它只依赖同目录的 `StopoverK`（颜色字体）和 `WikiImage`（带缓存的网络图）。
+它要用到 `HomeView.swift` 里的 `StopoverK`（颜色字体）、`Kit.swift` 里的 `WikiImage`（带缓存的网络图）和 `UIColor(hex:)`，以及 `Resources/` 里的 Instrument Serif / IBM Plex Mono 字体，一起拷过去。
 
 <p align="center"><img src="../docs/img/chat-cards.png" width="300" alt="聊天卡片：浅色是我递的和我回的，深色是 TA 说的和 TA 递来的"></p>
 

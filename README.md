@@ -21,7 +21,7 @@
 - **登机牌**：每来一次是一张票——出发地 → 城市 → 终点、日期、里程、一句备注。轻点抬起，按住右边的存根顺着虚线往下拉，整条撕下来（网页上再点一下也会自己撕），进入「这一次」。
 
 - **这一次**：随记（长短都行）、照片（自动去重、读拍摄时间、配文和标签）、改日期 / 出发地 / 终点。网页和 iOS 都把它做成了一只[活页文件夹](#这一次活页文件夹)。
-- **城市长卷**：852 座城有中文长卷——历史时间轴、文化、景点轮播、美食菜单，配维基共享资源的图，页面上带来源链接。另外 769 座点开有「整理」按钮，现场从 Wikipedia / Wikivoyage 写一页（要 DeepSeek key）；地图上没有的地方可以从 Wikidata 搜出来加上。
+- **城市长卷**：852 座城有中文长卷——历史时间轴、文化、景点轮播、美食菜单，配维基共享资源的图，页面上带来源链接。另外 769 座点开有「整理这座城的资料」按钮，现场从 Wikipedia / Wikivoyage 写一页（要 DeepSeek key）；地图上没有的地方可以从 Wikidata 搜出来加上。
 - **搜索三栏**：按国家找 / 去过的（按国家分组）/ 想去的（都想去、我想去、TA 想去）。没主意时摇骰子：所有城市、没去过的、或者想去的星星里随机挑一座。
 - 网页可以「添加到主屏幕」当 App 用；也有 SwiftUI 原生版。
 
@@ -79,7 +79,7 @@
 `features.share=false` 会把下面这些在网页上整块藏起来，只剩一个人记。
 
 - **递给 TA**：一座城、一个景点、一道菜、一整张票，或者在「这一次」里挑几段随记、几张照片递过去，可以附一句话。
-- **两分钟合并、可撤回**：连着递的东西和回的话先进「待送达」，安静两分钟（`inject.merge_seconds`）后合成一条送出；送出前随时撤回。
+- **两分钟合并、可撤回**：连着递的东西和回的话先进「待送达」，安静一段时间（`inject.merge_seconds`，默认 120 秒，每递一样重新计时）后合成一条送出；送出前随时撤回。
 - **对话组**：城市卡底部「我们的对话」——每次递送单独一组，平时在城市 / 某一次 / 照片 / 随记下说的话归在「平时说的」，可以逐条回复。
 - **往来**：顶栏「往来」里是两个人递过的所有东西（全部 / 我递的 / TA 递的，TA 加的想去也在里面），TA 递来、没看过的有红点。
 - **AI 伴侣**：TA 用 MCP 或命令行来看、留言、点蓝星、递东西，工具输出很省 token（见下文和 [`AGENT.md`](AGENT.md)）。
@@ -91,13 +91,15 @@
 ## 跑起来
 
 ```bash
+python3 -m venv .venv && . .venv/bin/activate     # Python 3.9 以上（macOS 自带的就行）
 pip install -r server/requirements.txt
 cp server/config.example.json server/config.json   # 名字、家、默认出发地、时钟、伴侣
 python3 server/seed_demo.py                         # 可选：几条虚构的旅行和对话，外加从 Wikimedia Commons 现拉的 4 张照片（--no-photos 不拉）
 python3 server/stopover.py                          # → http://localhost:8000
 ```
 
-- 数据在 `var/`（`stopover.db`、`photos/`、`vapid.json`），已在 `.gitignore` 里。
+- 数据在 `var/`（`stopover.db`、`photos/`、签名密钥 `secret`、`vapid.json`、整理城市用的 `cache/` `gen/`），已在 `.gitignore` 里。
+- 默认只听本机（`127.0.0.1`）。手机要连就 `STOPOVER_HOST=0.0.0.0 python3 server/stopover.py`，只在自己的局域网里这么开：服务没有登录（见「安全」）。
 - 环境变量：`STOPOVER_VAR`（数据目录）、`STOPOVER_CONFIG`（配置文件）、`STOPOVER_HOST` / `STOPOVER_PORT`。
 - **没有登录。** 只在自己电脑上跑，或者放在你自己的鉴权后面。
 - 现场整理城市要 DeepSeek：`export DEEPSEEK_API_KEY=...`（可选 `STOPOVER_CONTACT=你的邮箱`，用于维基/Nominatim 的 User-Agent）。不设也能用，只是那个按钮会报错。
@@ -113,7 +115,7 @@ python3 server/stopover.py                          # → http://localhost:8000
 | `partner` | `"TA"` | 同行的人的名字。 |
 | `home` | 上海 | `{"label","lat","lng","tz"}`：地球开场对准这里；`label` 是「家」在出发地选项里的叫法；和 `tz` 相同的时钟用这里的坐标判断昼夜。 |
 | `default_origin` | `{"domestic":"shanghai","abroad":"shanghai"}` | 新打卡默认的出发城市（城市 id），国内 / 国外分开。 |
-| `domestic_countries` | China, Hong Kong, Macao, Taiwan | 哪些国家算「国内」（Natural Earth 英文国名）。 |
+| `domestic_countries` | China, Hong Kong S.A.R., Macao S.A.R, Taiwan | 哪些国家算「国内」（Natural Earth 英文国名）。 |
 | `clocks` | 家里 + 伦敦 | `[{"label","tz","lat"?,"lng"?}]`：左下角的时钟，有坐标的画日 / 月。 |
 | `gen.daily_max` | `20` | 每天最多现场整理几座城。 |
 | `partner_key` | `""` | 伴侣的钥匙（Bearer）。空 = AI 调不进来，伴侣部分只能看。 |
@@ -208,7 +210,7 @@ Webhook 的 payload（`text` 由 `inject.template` 渲染，变量 `{me}` `{part
 - iOS 原生：`push.apns` 填 `.p8` 路径、`key_id`、`team_id`、`bundle_id`；app 用 `POST /api/push/apns {"token","env":"sandbox"|"production"}` 登记。没配时这个接口回 `{"ok":false,"reason":"apns not configured"}`。
 - 推送里带 `{"route":"stopover","city","target","share_id"?}`，点开直达那座城（网页走 `?city=<id>`）。
 
-**7. 安全。** 服务本身没有登录：网页、你的照片、`/api/state` 对能访问到它的人都是敞开的——谁能连上，谁就是「我」。放到公网上请套在你自己的鉴权 / 反向代理后面（basic auth、Cloudflare Access、Tailscale……），只把这几条路直接放行：`/mcp`、`/api/partner/*`（靠 partner 钥匙）、`/card/*`（靠卡片钥匙），以及**带 `s=` 参数的** `/api/photo/img/*`——发给伴侣、webhook 和卡片里的照片链接都带签名 `s`（HMAC-SHA256，绑定照片编号和尺寸，密钥在 `var/secret`，第一次用时自动生成），签名不对回 403；不带 `s` 的照片请求照旧走你自己的鉴权。钥匙别提交进仓库。
+**7. 安全。** 服务本身没有登录：网页、你的照片、`/api/state` 对能访问到它的人都是敞开的——谁能连上，谁就是「我」。放到公网上请套在你自己的鉴权 / 反向代理后面（basic auth、Cloudflare Access、Tailscale……），只把这几条路直接放行：`/mcp`、`/api/partner/*`（靠 partner 钥匙）、`/card/*` 和 `/api/share|comment/{id}/card`（靠卡片钥匙），以及**带 `s=` 参数的** `/api/photo/img/*`——发给伴侣、webhook 和卡片里的照片链接都带签名 `s`（HMAC-SHA256，绑定照片编号和尺寸，密钥在 `var/secret`，第一次用时自动生成），签名不对回 403；不带 `s` 的照片请求照旧走你自己的鉴权。钥匙别提交进仓库。iOS App 不带任何鉴权头，basic auth / Cloudflare Access 后面它连不上——手机要从外面连，用 Tailscale 这类组网把手机和服务器放进同一个私有网络。
 
 Caddy：
 
@@ -217,11 +219,17 @@ example.com {
 	@open {
 		path /mcp /api/partner/* /card/*
 	}
+	@cardjson {
+		path_regexp ^/api/(share|comment)/\d+/card$
+	}
 	@signedphoto {
 		path /api/photo/img/*
 		query s=*
 	}
 	handle @open {
+		reverse_proxy 127.0.0.1:8000
+	}
+	handle @cardjson {
 		reverse_proxy 127.0.0.1:8000
 	}
 	handle @signedphoto {
@@ -239,9 +247,11 @@ example.com {
 nginx：
 
 ```nginx
-location ~ ^/(mcp$|api/partner/|card/) { proxy_pass http://127.0.0.1:8000; }
+map $arg_s $photo_auth { "" "stopover"; default off; }   # 写在 http {} 里：没签名的照片要登录，带签名的直接放
+
+location ~ ^/(mcp$|api/partner/|card/|api/(share|comment)/\d+/card$) { proxy_pass http://127.0.0.1:8000; }
 location /api/photo/img/ {
-    if ($arg_s = "") { return 401; }      # 没签名的照片只给登录后的你（或者在这里也加 auth_basic）
+    auth_basic $photo_auth; auth_basic_user_file /etc/nginx/stopover.htpasswd;
     proxy_pass http://127.0.0.1:8000;
 }
 location / {
@@ -274,13 +284,13 @@ location / {
 不用，人也可以。但网页和 iOS App 永远以「我」的身份说话；「TA」那一侧要带 `partner_key` 走接口——命令行 `cli/stopover.py`、MCP 或者直接调 `/api/partner/*`。所以一个人类伴侣目前用命令行最方便，网页上没有「以 TA 身份登录」。
 
 **照片存在哪？会传到别处吗？**
-只存在你自己机器的 `var/photos/`（原图 + 600 / 1600 宽的缩略图），不会上传到任何第三方。只有你配了 `inject.url`（或伴侣来取收件箱）时，递出去的照片才会以**带签名**的链接发出去，链接绑定照片编号和尺寸，改一个字符就 403。
+只存在你自己机器的 `var/photos/`（原图 + 600 / 1600 宽的缩略图），不会上传到任何第三方。只有你配了 `inject.url`（或伴侣来取收件箱）时，递出去的照片才会以**带签名**的链接发出去，链接绑定照片编号和尺寸，改一个字符就 403。另外伴侣用 `img p:编号` / `look p:编号` 看照片时，图片本身（最长边 1024）会进它的工具结果——伴侣是云端 AI 的话，这些照片就到了那家服务商那里。
 
 **iOS 版要付费开发者账号吗？**
 在模拟器和自己手机上跑不用，免费的 Apple ID 就行；只有推送（APNs）需要付费账号。见 [`ios/README.md`](ios/README.md)。
 
 **能换底图、加城市吗？**
-加城市：搜索里找不到的地方，在结果底下从 Wikidata 搜出来直接加；想给它写一页长卷就点「整理」，或者跑 `pipeline/citygen.py`。换底图：三种风格定义在 `web/index.html` 的 `STYLES` 里（瓦片地址、整张贴图 `web/tex/`、配色），照着改或加一种；地址带 `?notiles` 时只用本地整张贴图。
+加城市：搜索里找不到的地方，在结果底下从 Wikidata 搜出来直接加；想给它写一页长卷就点「整理这座城的资料」，或者跑 `DEEPSEEK_API_KEY=… python3 pipeline/citygen.py <城市 id> [fast|good]`（城市 id 见 `web/data/cities.json`，模型名可用 `DEEPSEEK_MODEL_FAST` / `DEEPSEEK_MODEL_GOOD` 改）。换底图：三种风格定义在 `web/js/globe.js` 的 `STYLES` 里（瓦片地址、整张贴图 `web/tex/`、配色），照着改或加一种；地址带 `?notiles` 时只用本地整张贴图。
 
 ## 目录
 

@@ -96,4 +96,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in CMDS:
         if len(sys.argv) >= 2: print(f"✗ 没有「{sys.argv[1]}」这个命令，用法如下：")
         print(__doc__.split("\n\n", 3)[3].strip("\n")); sys.exit(0 if len(sys.argv) < 2 else 1)
-    CMDS[sys.argv[1]](sys.argv[2:])
+    # MCP-style key=value (as AGENT.md and the server's hints write them) → plain positional words
+    args = [re.sub(r"^(?:ref|city|to|text|section|note)=", "", x) for x in sys.argv[2:]]
+    CMDS[sys.argv[1]](args)

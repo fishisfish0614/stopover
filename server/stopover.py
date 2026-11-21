@@ -308,7 +308,8 @@ def save_photo(tid, raw, filename):
         except Exception: pass
         im = ImageOps.exif_transpose(im)
     except Exception: raise HTTPException(400, "认不出这张图片")
-    name = same["file"] if same else f"{sha[:12]}_{re.sub(r'[^\w.\-]+', '_', os.path.basename(filename or 'photo.jpg'))[-60:]}"
+    safe = re.sub(r'[^\w.\-]+', '_', os.path.basename(filename or 'photo.jpg'))[-60:]   # no backslash inside the f-string: Python < 3.12
+    name = same["file"] if same else f"{sha[:12]}_{safe}"
     if not same:
         open(os.path.join(PHOTOS, name), "wb").write(raw)
         for w in (600, 1600):

@@ -1,6 +1,6 @@
 # 经停 Stopover · 接口文档 / API Reference
 
-这份文档写给两类人：想用自己的后端（Node、Go……）重新实现这套接口、直接复用本仓库 `web/index.html` 和 `ios/` App 的人，以及对接 iOS 的开发者。一切以 `server/stopover.py` 为准；这里的字段名、状态码、错误文案都能在代码里找到。
+这份文档写给两类人：想用自己的后端（Node、Go……）重新实现这套接口、直接复用本仓库 `web/`（`index.html` + `js/` + `css/`）和 `ios/` App 的人，以及对接 iOS 的开发者。一切以 `server/stopover.py` 为准；这里的字段名、状态码、错误文案都能在代码里找到。
 
 目录：
 
@@ -422,7 +422,7 @@ SQLite 表结构见 `init()`。下面只列客户端能看到的字段。
 4. **没配 `inject.url`**：窗口一过直接标 `sent`，全部进收件箱（`GET /api/partner/inbox`、MCP `inbox`）。
 5. 投递给 partner **不会**推送到 me 的设备。
 
-**partner 递出 / partner 回话**：没有合并窗口。递送直接 `status: "sent"`，话直接落库；两者都立即推送给 me（§6）。me 在网页 / App 的「递来的」里看到，点开后客户端调 `PUT /api/share/{id}/read`。
+**partner 递出 / partner 回话**：没有合并窗口。递送直接 `status: "sent"`，话直接落库；两者都立即推送给 me（§6）。me 在网页 / App 的「往来」里看到，点开后客户端调 `PUT /api/share/{id}/read`。
 
 ## 6. 推送 / Push
 
@@ -518,7 +518,7 @@ s      = hex(HMAC-SHA256(secret, "photo:{pid}:{w}"))[:32]
 
 **卡片钥匙 `k`**：每条 share / comment 建立时生成一把随机串（`secrets.token_urlsafe(12)`，16 字符），存在行里，常量时间比较。出现在 `/api/state`（`shares[].key`、`comments[].key`）、webhook 的 `cards[].url`、收件箱里。
 
-**反向代理放行**：只把 `/mcp`、`/api/partner/*`、`/card/*` 和**带 `s=` 的** `/api/photo/img/*` 放给公网，其余套你自己的鉴权——Caddy / nginx 写法见 README「安全」一节。
+**反向代理放行**：只把 `/mcp`、`/api/partner/*`、`/card/*`、`/api/share|comment/{id}/card` 和**带 `s=` 的** `/api/photo/img/*` 放给公网，其余套你自己的鉴权——Caddy / nginx 写法见 README「安全」一节。
 
 ## 9. 重新实现清单 / Re-implementing checklist
 
@@ -535,7 +535,7 @@ s      = hex(HMAC-SHA256(secret, "photo:{pid}:{w}"))[:32]
 
 **二期：两个人（`features.share: true` 时需要）**
 
-- `POST` / `DELETE /api/share`、`PUT /api/share/{id}/read`、`POST` / `DELETE /api/comment`
+- `POST /api/share` / `DELETE /api/share/{sid}`、`PUT /api/share/{id}/read`、`POST /api/comment` / `DELETE /api/comment/{cid}`
 - 投递：合并窗口 + webhook 或收件箱（`GET /api/partner/inbox`）
 - partner 鉴权和 403 规则；`/mcp` 或 `/api/partner/tool`（伴侣要能进来）
 - 卡片和照片签名（只有给聊天程序发卡片 / 图时才需要）

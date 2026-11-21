@@ -21,7 +21,7 @@ Mark the cities you've been to on a globe. Every stopover is a boarding pass —
 - **Boarding passes**: one per visit — origin → city → next stop, dates, distance and a remark. Tap to lift it, hold the stub on the right and pull down along the perforation to tear the whole strip off (on the web, tapping again tears it for you), and you're in the trip.
 
 - **The trip page** (这一次): notes of any length, photos (deduplicated, EXIF capture date, captions and tags), and editable dates, origin and next stop. On the web and iOS it's a [binder folder](#the-trip-page-a-binder-folder).
-- **City pages**: 852 cities have a long-form Chinese page — a history timeline, culture, a sights carousel and a food menu, illustrated with Wikimedia Commons photos and with sources linked on the page. The other 769 have a "Write it up" (整理) button that drafts a page on the spot from Wikipedia / Wikivoyage (needs a DeepSeek key); places not on the map can be found on Wikidata and added.
+- **City pages**: 852 cities have a long-form Chinese page — a history timeline, culture, a sights carousel and a food menu, illustrated with Wikimedia Commons photos and with sources linked on the page. The other 769 have a "Write it up" (整理这座城的资料) button that drafts a page on the spot from Wikipedia / Wikivoyage (needs a DeepSeek key); places not on the map can be found on Wikidata and added.
 - **Search in three tabs**: by country / where you've been (grouped by country) / where you want to go (both of you, just you, just your partner). Out of ideas? Roll the dice: it picks a random city from all of them, the unvisited ones, or your stars.
 - The web app can be added to your home screen and used like an app; there's also a native SwiftUI app.
 
@@ -79,7 +79,7 @@ Each stopover is a frosted-glass folder. The trip's photos peek out of the top, 
 Set `features.share=false` and everything below disappears from the web page, leaving just your own travel log.
 
 - **Hand it over (递给TA)**: a city, a sight, a dish, a whole ticket, or a few hand-picked notes and photos from a trip, with an optional line of your own.
-- **Batched and undoable**: everything you hand over and every reply waits as *pending* (待送达) until two quiet minutes pass (`inject.merge_seconds`), then goes out as one message; take it back any time before that.
+- **Batched and undoable**: everything you hand over and every reply waits as *pending* (待送达) until a quiet spell passes (`inject.merge_seconds`, 120 seconds by default, restarting with each new item), then goes out as one message; take it back any time before that.
 - **Threads**: "Our conversation" (我们的对话) at the bottom of each city card — one thread per hand-over, plus a "just talking" (平时说的) thread for comments on the city, a trip, a photo or a note. Reply to any message individually.
 - **Inbox** (往来): everything either of you handed over, in the top bar — all / mine / your partner's, with their new wishes folded in. A red dot marks anything from your partner you haven't opened.
 - **AI companions**: your partner reads, comments, stars (blue) and hands things over via MCP or the CLI, and the tool output is kept short to save tokens (see below and [`AGENT.md`](AGENT.md)).
@@ -91,13 +91,15 @@ Set `features.share=false` and everything below disappears from the web page, le
 ## Run it
 
 ```bash
+python3 -m venv .venv && . .venv/bin/activate     # Python 3.9+ (the one that ships with macOS is fine)
 pip install -r server/requirements.txt
 cp server/config.example.json server/config.json   # names, home, default origins, clocks, partner
 python3 server/seed_demo.py                         # optional: a few made-up trips and a short conversation, plus 4 photos fetched from Wikimedia Commons (--no-photos to skip)
 python3 server/stopover.py                          # → http://localhost:8000
 ```
 
-- Runtime data lives in `var/` (`stopover.db`, `photos/`, `vapid.json`), which is git-ignored.
+- Runtime data lives in `var/` (`stopover.db`, `photos/`, the signing key `secret`, `vapid.json`, and `cache/` `gen/` for writing up cities), which is git-ignored.
+- By default it listens on this machine only (`127.0.0.1`). For a phone, run `STOPOVER_HOST=0.0.0.0 python3 server/stopover.py` — only on your own LAN, since the server has no login (see Security).
 - Environment variables: `STOPOVER_VAR` (data dir), `STOPOVER_CONFIG` (config file), `STOPOVER_HOST` / `STOPOVER_PORT`.
 - **There is no login.** Run it on your own machine, or behind your own auth.
 - On-demand city pages need DeepSeek: `export DEEPSEEK_API_KEY=...` (optionally `STOPOVER_CONTACT=your email`, used in the User-Agent for Wikipedia/Nominatim). Everything else works without it; only that button will report an error.
@@ -113,7 +115,7 @@ python3 server/stopover.py                          # → http://localhost:8000
 | `partner` | `"TA"` | Your partner's display name. |
 | `home` | Shanghai | `{"label","lat","lng","tz"}`: where the globe opens; `label` is what "home" is called in origin pickers; clocks with the same `tz` use these coordinates for day/night. |
 | `default_origin` | `{"domestic":"shanghai","abroad":"shanghai"}` | Default origin city id for new check-ins, separately for domestic and abroad. |
-| `domestic_countries` | China, Hong Kong, Macao, Taiwan | Which countries count as domestic (Natural Earth English names). |
+| `domestic_countries` | China, Hong Kong S.A.R., Macao S.A.R, Taiwan | Which countries count as domestic (Natural Earth English names). |
 | `clocks` | home + London | `[{"label","tz","lat"?,"lng"?}]`: clocks in the bottom-left corner; those with coordinates draw a sun / moon. |
 | `gen.daily_max` | `20` | Daily cap on on-demand city pages. |
 | `partner_key` | `""` | The partner's key (Bearer). Empty = no AI access; partner features are view-only. |
@@ -208,7 +210,7 @@ Webhook payload (`text` is rendered from `inject.template`, variables `{me}` `{p
 - Native iOS: fill `push.apns` with the `.p8` path, `key_id`, `team_id` and `bundle_id`; the app registers with `POST /api/push/apns {"token","env":"sandbox"|"production"}`. When APNs isn't configured, that endpoint returns `{"ok":false,"reason":"apns not configured"}`.
 - Payloads carry `{"route":"stopover","city","target","share_id"?}`, so a tap opens that city (the web app uses `?city=<id>`).
 
-**7. Security.** The server has no login of its own: the web page, your photos and `/api/state` are open to anyone who can reach it — whoever connects is "me". If you put it on the internet, put it behind your own auth / reverse proxy (basic auth, Cloudflare Access, Tailscale…) and let only these paths straight through: `/mcp`, `/api/partner/*` (partner key), `/card/*` (card keys), and `/api/photo/img/*` **with an `s=` parameter** — photo links handed to the partner, sent in webhooks and shown in cards carry a signature `s` (HMAC-SHA256 over the photo id and size, secret auto-generated in `var/secret` on first use). A wrong signature gets 403; photo requests without `s` stay behind your own auth. Keep your keys out of git.
+**7. Security.** The server has no login of its own: the web page, your photos and `/api/state` are open to anyone who can reach it — whoever connects is "me". If you put it on the internet, put it behind your own auth / reverse proxy (basic auth, Cloudflare Access, Tailscale…) and let only these paths straight through: `/mcp`, `/api/partner/*` (partner key), `/card/*` and `/api/share|comment/{id}/card` (card keys), and `/api/photo/img/*` **with an `s=` parameter** — photo links handed to the partner, sent in webhooks and shown in cards carry a signature `s` (HMAC-SHA256 over the photo id and size, secret auto-generated in `var/secret` on first use). A wrong signature gets 403; photo requests without `s` stay behind your own auth. Keep your keys out of git. The iOS app sends no auth header, so it can't get through basic auth or Cloudflare Access — to reach the server from outside, put the phone and the server on one private network with something like Tailscale.
 
 Caddy:
 
@@ -217,11 +219,17 @@ example.com {
 	@open {
 		path /mcp /api/partner/* /card/*
 	}
+	@cardjson {
+		path_regexp ^/api/(share|comment)/\d+/card$
+	}
 	@signedphoto {
 		path /api/photo/img/*
 		query s=*
 	}
 	handle @open {
+		reverse_proxy 127.0.0.1:8000
+	}
+	handle @cardjson {
 		reverse_proxy 127.0.0.1:8000
 	}
 	handle @signedphoto {
@@ -239,9 +247,11 @@ example.com {
 nginx:
 
 ```nginx
-location ~ ^/(mcp$|api/partner/|card/) { proxy_pass http://127.0.0.1:8000; }
+map $arg_s $photo_auth { "" "stopover"; default off; }   # inside http {}: unsigned photos need a login, signed ones go straight through
+
+location ~ ^/(mcp$|api/partner/|card/|api/(share|comment)/\d+/card$) { proxy_pass http://127.0.0.1:8000; }
 location /api/photo/img/ {
-    if ($arg_s = "") { return 401; }      # unsigned photos are for logged-in you only (or add auth_basic here too)
+    auth_basic $photo_auth; auth_basic_user_file /etc/nginx/stopover.htpasswd;
     proxy_pass http://127.0.0.1:8000;
 }
 location / {
@@ -274,13 +284,13 @@ Yes. Set `features.share=false` to hide the hand-over, conversation, inbox and n
 No, a person works too. But the web page and the iOS app always act as *me*; the partner side goes through the API with `partner_key` — the `cli/stopover.py` CLI, MCP, or `/api/partner/*` directly. So for a human partner the CLI is currently the easiest route; there's no "log in as partner" in the web UI.
 
 **Where do photos go? Are they uploaded anywhere?**
-Only to `var/photos/` on your own machine (originals plus 600px / 1600px-wide thumbnails); nothing goes to any third party. Only when you've set `inject.url` (or the partner pulls the inbox) do handed-over photos go out, as **signed** links bound to the photo id and size — change one character and you get 403.
+Only to `var/photos/` on your own machine (originals plus 600px / 1600px-wide thumbnails); nothing goes to any third party. Only when you've set `inject.url` (or the partner pulls the inbox) do handed-over photos go out, as **signed** links bound to the photo id and size — change one character and you get 403. Also, when the partner looks at a photo with `img p:N` / `look p:N`, the image itself (up to 1024px on the long side) lands in its tool result — if the partner is a hosted AI, those photos reach that provider.
 
 **Do I need a paid Apple developer account for iOS?**
 Not to run it in the simulator or on your own phone — a free Apple ID is enough. Only push notifications (APNs) need a paid account. See [`ios/README.en.md`](ios/README.en.md).
 
 **Can I change the map or add cities?**
-Adding cities: if search can't find a place, look it up on Wikidata right below the results and add it; to give it a long-form page, tap "Write it up" (整理) or run `pipeline/citygen.py`. Changing the map: the three styles are defined in `STYLES` in `web/index.html` (tile URL, full-globe texture in `web/tex/`, colors) — edit one or add your own; with `?notiles` in the URL only the local textures are used.
+Adding cities: if search can't find a place, look it up on Wikidata right below the results and add it; to give it a long-form page, tap "Write it up" (整理这座城的资料) or run `DEEPSEEK_API_KEY=… python3 pipeline/citygen.py <city id> [fast|good]` (city ids are in `web/data/cities.json`; override model names with `DEEPSEEK_MODEL_FAST` / `DEEPSEEK_MODEL_GOOD`). Changing the map: the three styles are defined in `STYLES` in `web/js/globe.js` (tile URL, full-globe texture in `web/tex/`, colors) — edit one or add your own; with `?notiles` in the URL only the local textures are used.
 
 ## Layout
 

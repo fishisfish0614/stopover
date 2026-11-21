@@ -12,7 +12,7 @@ Looking and reading stay tools (look / read / img / inbox): those need an answer
 Set "hints": "tags" in server/config.json so the server's "→ reply like this" hints are written as tags too.
 
     echo "$reply" | python3 cli/tags.py            # clean reply → stdout, one ✓/✗ line per tag → stderr
-    echo "$reply" | python3 cli/tags.py --json     # {"text": clean reply, "results": [{tag, ok, out}]}
+    echo "$reply" | python3 cli/tags.py --json     # {"text": clean reply, "actions": [...], "results": [{ok, out}]}
     echo "$reply" | python3 cli/tags.py --dry      # parse only, run nothing
 
 From Python:  from tags import strip, parse, run   — parse(text) → (clean, actions); run(actions) → [(ok, out)].
